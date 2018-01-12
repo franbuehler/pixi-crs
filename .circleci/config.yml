@@ -6,7 +6,7 @@ jobs:
     steps:
       - checkout
       - run: echo "hello world"
-      - run: apt-get update && apt-get install -y curl
+      - run: apt-get update && apt-get install -y curl sudo
       - run:
           name: Install Docker Compose
           command: |
