@@ -41,7 +41,7 @@ jobs:
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-baseline.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVcLZSbEfwBTEEYEgpmtKc6x3CDtMks5aY0pXwA \
-                -t http://172.17.0.3:8000/ || \
+                -t http://0.0.0.0:8000/ || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
           
