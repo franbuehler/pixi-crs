@@ -33,12 +33,12 @@ jobs:
           name: ZAP baseline test of application
           # Only fail on error code 1, which indicates at least one FAIL was found.
           # error codes 2 & 3 indicate WARN or other, and should not break the run
+             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
           command: |
              (
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-baseline.py \
-             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf \
                 -t http://172.17.0.2:8000/ || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
