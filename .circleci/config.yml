@@ -32,11 +32,9 @@ jobs:
       - run:
           name: Start OWASP ModSecurity CRS Container in front of application
           command: |
-             (
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
           docker pull franbuehler/modsecurity-crs && \
              docker run -t franbuehler/modsecurity-crs
-             )
 
       - run:
           name: ZAP baseline test of application
@@ -52,4 +50,3 @@ jobs:
                 -t http://172.17.0.1:8000/ || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
-          
