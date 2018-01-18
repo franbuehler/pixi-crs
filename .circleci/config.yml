@@ -5,7 +5,6 @@ jobs:
       - image: debian:stretch
     steps:
       - checkout
-      - run: echo "hello world"
       - run: apt-get update && apt-get install -y curl sudo docker
       - run:
           name: Install Docker client
@@ -29,6 +28,15 @@ jobs:
              set -x
              docker-compose version
              docker-compose up -d
+
+      - run:
+          name: Start OWASP ModSecurity CRS Container in front of application
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+          docker pull franbuehler/modsecurity-crs:latest && \
+             docker run -t franbuehler/modsecurity-crs
+             )
 
       - run:
           name: ZAP baseline test of application
