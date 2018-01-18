@@ -34,7 +34,7 @@ jobs:
           command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
-             docker run -t franbuehler/modsecurity-crs
+             docker run -dt franbuehler/modsecurity-crs
 
       - run:
           name: ZAP baseline test of application
