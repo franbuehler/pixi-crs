@@ -70,3 +70,4 @@ jobs:
           name: Get ModSecurity logs
           command: |
              docker exec apache-crs cat /var/log/modsec_audit.log 
+             docker exec apache-crs curl http://172.17.0.1:8000
