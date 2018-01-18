@@ -33,7 +33,7 @@ jobs:
           name: Start OWASP ModSecurity CRS Container in front of application
           command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-          docker pull franbuehler/modsecurity-crs && \
+             docker pull franbuehler/modsecurity-crs && \
              docker run -t franbuehler/modsecurity-crs
 
       - run:
