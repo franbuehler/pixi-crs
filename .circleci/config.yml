@@ -5,7 +5,7 @@ jobs:
       - image: debian:stretch
     steps:
       - checkout
-      - run: apt-get update && apt-get install -y curl sudo docker
+      - run: apt-get update && apt-get install -y curl sudo
       - run:
           name: Install Docker client
           command: |
@@ -23,14 +23,14 @@ jobs:
       - setup_remote_docker
 
       - run:
-          name: Start container and verify it's working
+          name: Start DevSlop pixi-crs container
           command: |
              set -x
              docker-compose version
              docker-compose up -d
 
       - run:
-          name: Start OWASP ModSecurity CRS Container in front of application
+          name: Start OWASP ModSecurity CRS Container in front of application (reverse proxy)
           command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
@@ -72,7 +72,7 @@ jobs:
               )
 
       - run:
-          name: Get ModSecurity logs
+          name: Show ModSecurity logs
           command: |
              docker exec apache-crs cat /var/log/modsec_audit.log 
              docker exec apache-crs curl http://172.17.0.1:8000
