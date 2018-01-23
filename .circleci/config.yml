@@ -23,14 +23,14 @@ jobs:
       - setup_remote_docker
 
       - run:
-          name: Start DevSlop pixi-crs container
+          name: Start DevSlop pixi crs container
           command: |
              set -x
              docker-compose version
              docker-compose up -d
 
       - run:
-          name: Start OWASP ModSecurity CRS Container in front of application (reverse proxy)
+          name: Start OWASP ModSecurity CRS Container in front of application
           command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
