@@ -72,6 +72,17 @@ jobs:
               )
 
       - run:
+          name: ZAP API scan of application with CRS
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -t http://172.17.0.2:8001/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
+      - run:
           name: Show ModSecurity logs
           command: |
              docker exec apache-crs cat /var/log/modsec_audit.log 
