@@ -35,6 +35,7 @@ jobs:
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
              docker run -dt --name apache-crs franbuehler/modsecurity-crs
+             docker exec apache-crs ls /var/log/
 
 #      - run:
 #          name: ZAP baseline test of application
