@@ -5,7 +5,7 @@ jobs:
       - image: debian:stretch
     steps:
       - checkout
-      - run: apt-get update && apt-get install -y curl sudo docker
+      - run: apt-get update && apt-get install -y curl sudo
       - run:
           name: Install Docker client
           command: |
