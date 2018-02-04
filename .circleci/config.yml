@@ -45,8 +45,9 @@ jobs:
           name: ModSecurity Tuning - Load rule exclusions
           command: |
              echo "SecRuleRemoveById 930110" > exclude.930110.conf;
-             docker cp exclude.930110.conf apache-crs:/etc/httpd/modsecurity.d/exclusions/;
+             docker cp exclude.*.conf apache-crs:/etc/httpd/modsecurity.d/exclusions/;
              docker exec apache-crs ls /etc/httpd/modsecurity.d/exclusions/;
+             docker exec apache-crs cat /etc/httpd/modsecurity.d/exclusions/exclude.930110.conf;
              docker exec apache-crs /usr/sbin/httpd -k graceful
 
 #      - run:
