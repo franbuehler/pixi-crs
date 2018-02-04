@@ -46,8 +46,9 @@ jobs:
           command: |
              #REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf OR
              #RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
-             docker exec apache-crs touch /etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-             docker exec apache-crs printf "\nSecRuleRemoveById 930110\n" > /etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+             printf "\nSecRuleRemoveById 930110\n" > tmp.conf
+             docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+             #docker exec apache-crs printf "\nSecRuleRemoveById 930110\n" > /etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
              docker exec apache-crs /usr/sbin/httpd -k graceful
 
 #      - run:
