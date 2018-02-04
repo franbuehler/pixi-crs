@@ -37,7 +37,7 @@ jobs:
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
              docker run -dt --name apache-crs -e PARANOIA=1 -e \
-             ANOMALYIN=5 -e ANOMALYOUT=4 -e BACKEND=http://127.17.0.1:8000 \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 #             docker run -dt --name apache-crs franbuehler/modsecurity-crs
 
