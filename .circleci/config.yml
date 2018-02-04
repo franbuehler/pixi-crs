@@ -24,6 +24,7 @@ jobs:
 
       - run:
           name: Start DevSlop Pixi Container
+          #http://172.17.0.1:8000
           command: |
              set -x
              docker-compose version
@@ -31,10 +32,11 @@ jobs:
 
       - run:
           name: Start OWASP ModSecurity CRS Container in front of application
+          #http://172.17.0.2:8001
           command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
-             docker run -dt --name apache-crs franbuehler/modsecurity-crs
+          docker run -dt --name apache-crs -e PARANOIA=1 -e ANOMALYIN=5 -e ANOMALYOUT=4 -e BACKEND=http://127.17.0.2:8001 -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
 #      - run:
 #          name: ZAP baseline test of application
