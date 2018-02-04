@@ -40,6 +40,13 @@ jobs:
              ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 #             docker run -dt --name apache-crs franbuehler/modsecurity-crs
+#
+      - run:
+          name: ModSecurity Tuning - Load rule exclusions
+          command: |
+             echo "SecRuleRemoveById 930110" > exclude.930110.conf;
+             docker cp exclude.*.conf apache-crs:/etc/httpd/modsecurity.d/exclusions/;
+             docker exec -ti compassionate_kirch /usr/sbin/httpd -k graceful
 
 #      - run:
 #          name: ZAP baseline test of application
