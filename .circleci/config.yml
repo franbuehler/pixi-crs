@@ -1,8 +1,8 @@
 version: 2
 jobs:
   build:
-      machine:true
-      image: circleci:node:9.5.0-browsers
+    docker:
+            - image: circleci:node:9.5.0
               # - image: circleci:node:7.10.1-browsers
 
     steps:
