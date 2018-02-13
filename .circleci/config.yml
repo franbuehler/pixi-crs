@@ -12,7 +12,7 @@ jobs:
           name: Install dependencies
           command: |
              apt-get update && apt-get install -y curl sudo #chromium-browser
-             npm install -g testcafe
+             sudo npm install -g testcafe
              # apt-get install -y google-chrome-stable
              # https://hub.docker.com/r/circleci/node/tags/
              #
