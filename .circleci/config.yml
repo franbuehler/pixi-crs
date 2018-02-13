@@ -12,19 +12,9 @@ jobs:
           command: |
              sudo apt-get update && sudo apt-get install -y curl 
              sudo npm install -g testcafe
-             # apt-get install -y google-chrome-stable
-             # https://hub.docker.com/r/circleci/node/tags/
              #
              # testcafe chrome test.js
 
-             #      - run:
-             #          name: Install Docker client
-             #          command: |
-             #             set -x
-             #             VER="17.03.0-ce"
-             #             curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-             #             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-             #             mv /tmp/docker/* /usr/bin
       - run:
           name: Install Docker Compose
           command: |
@@ -51,7 +41,7 @@ jobs:
              ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 #             docker run -dt --name apache-crs franbuehler/modsecurity-crs
-#
+
       - run:
           name: ModSecurity Tuning - Load rule exclusions
           command: |
@@ -97,11 +87,11 @@ jobs:
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 
-test:
-    override:
-      - coverage run --source='.' manage.py test
-      - testcafe chrome app_1/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
-      - testcafe chrome app_2/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
+             #test:
+             #    override:
+             #      - coverage run --source='.' manage.py test
+             #      - testcafe chrome app_1/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
+             #      - testcafe chrome app_2/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
 
       - run:
           name: ZAP API scan of application
