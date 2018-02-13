@@ -10,7 +10,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-             sudo apt-get update && apt-get install -y curl sudo #chromium-browser
+             sudo apt-get update && sudo apt-get install -y curl 
              sudo npm install -g testcafe
              # apt-get install -y google-chrome-stable
              # https://hub.docker.com/r/circleci/node/tags/
