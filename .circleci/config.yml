@@ -6,10 +6,7 @@ jobs:
               # - image: circleci:node:7.10.1-browsers
 
     steps:
-      - run:
-          name: Checkout pixi 
-          command: |
-             checkout
+      - checkout
 
       - run:
           name: Install dependencies
