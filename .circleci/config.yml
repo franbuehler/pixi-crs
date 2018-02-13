@@ -2,10 +2,25 @@ version: 2
 jobs:
   build:
     docker:
-      - image: debian:stretch
+      - image: circleci:node:9.5.0-stretch-browsers
+              # - image: circleci:node:7.10.1-browsers
+
     steps:
-      - checkout
-      - run: apt-get update && apt-get install -y curl sudo
+      - run:
+          name: Checkout pixi 
+          command: |
+             checkout
+
+      - run:
+          name: Install dependencies
+          command: |
+             apt-get update && apt-get install -y curl sudo #chromium-browser
+             npm install -g testcafe
+             # apt-get install -y google-chrome-stable
+             # https://hub.docker.com/r/circleci/node/tags/
+             #
+             # testcafe chrome test.js
+
       - run:
           name: Install Docker client
           command: |
@@ -86,6 +101,12 @@ jobs:
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 
+test:
+    override:
+      - coverage run --source='.' manage.py test
+      - testcafe chrome app_1/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
+      - testcafe chrome app_2/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
+
       - run:
           name: ZAP API scan of application
           command: |
@@ -115,6 +136,11 @@ jobs:
       - run:
           name: Show ModSecurity logs
           command: |
-                  docker exec apache-crs cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+                  docker exec apache-crs cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee $CIRCLE_ARTIFACTS
                   #docker exec apache-crs cat /etc/httpd/logs/error.log
                   #docker exec apache-crs cat /etc/httpd/logs/modsec_audit.log 
+                  #
+
+       #http://devexpress.github.io/testcafe/documentation/recipes/integrating-testcafe-with-ci-systems/circleci.html
+       - store_test_results:
+                     path: /tmp/test-results
