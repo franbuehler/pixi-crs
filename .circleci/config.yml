@@ -10,21 +10,21 @@ jobs:
       - run:
           name: Install dependencies
           command: |
-             apt-get update && apt-get install -y curl sudo #chromium-browser
+             sudo apt-get update && apt-get install -y curl sudo #chromium-browser
              sudo npm install -g testcafe
              # apt-get install -y google-chrome-stable
              # https://hub.docker.com/r/circleci/node/tags/
              #
              # testcafe chrome test.js
 
-      - run:
-          name: Install Docker client
-          command: |
-             set -x
-             VER="17.03.0-ce"
-             curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
-             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
-             mv /tmp/docker/* /usr/bin
+             #      - run:
+             #          name: Install Docker client
+             #          command: |
+             #             set -x
+             #             VER="17.03.0-ce"
+             #             curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
+             #             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+             #             mv /tmp/docker/* /usr/bin
       - run:
           name: Install Docker Compose
           command: |
