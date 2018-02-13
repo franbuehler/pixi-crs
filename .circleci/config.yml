@@ -141,5 +141,5 @@ test:
                   #docker exec apache-crs cat /etc/httpd/logs/modsec_audit.log 
 
                   #http://devexpress.github.io/testcafe/documentation/recipes/integrating-testcafe-with-ci-systems/circleci.html
-       - store_test_results:
-                     path: /tmp/test-results
+                  # - store_test_results:
+                  #   path: /tmp/test-results
