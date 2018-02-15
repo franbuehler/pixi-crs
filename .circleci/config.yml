@@ -121,7 +121,7 @@ jobs:
       - run:
           name: Application Tests
           command: |
-                  testcafe "chrome:headless" testcafe/tests/one.ts
+                  testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.ts
           
       - store_test_results:
            path: /tmp/test-results
