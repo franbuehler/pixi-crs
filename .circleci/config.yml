@@ -12,8 +12,7 @@ jobs:
           command: |
              sudo apt-get update && sudo apt-get install -y curl 
              sudo npm install -g testcafe
-             #
-             # testcafe chrome test.js
+             
 
       - run:
           name: Install Docker Compose
@@ -93,31 +92,40 @@ jobs:
              #      - testcafe chrome app_1/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
              #      - testcafe chrome app_2/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
 
-      - run:
-          name: ZAP API scan of application
-          command: |
-             (
-             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-             docker pull owasp/zap2docker-weekly && \
-             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
-                -f openapi \
-                -t http://172.17.0.1:8000/ || \
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-              )
+#      - run:
+#          name: ZAP API scan of application
+#          command: |
+#             (
+#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+#             docker pull owasp/zap2docker-weekly && \
+#             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
+#                -f openapi \
+#                -t http://172.17.0.1:8000/ || \
+#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+#              )
+#
+#      - run:
+#          name: ZAP API scan of application with CRS
+#          command: |
+#             (
+#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+#             docker pull owasp/zap2docker-weekly && \
+#             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
+#                -f openapi \
+#                -t http://172.17.0.2:8001/ || \
+#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+#              )
+#
 
       - run:
-          name: ZAP API scan of application with CRS
+          name: Application Tests
           command: |
-             (
-             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-             docker pull owasp/zap2docker-weekly && \
-             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
-                -f openapi \
-                -t http://172.17.0.2:8001/ || \
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-              )
+              testcafe chrome testcafe/tests/one.ts
+          
+      - store_test_results:
+           path: /tmp/test-results
 
       - run:
           name: Show ModSecurity logs
@@ -126,6 +134,3 @@ jobs:
                   #docker exec apache-crs cat /etc/httpd/logs/error.log
                   #docker exec apache-crs cat /etc/httpd/logs/modsec_audit.log 
 
-                  #http://devexpress.github.io/testcafe/documentation/recipes/integrating-testcafe-with-ci-systems/circleci.html
-       - store_test_results:
-           path: /tmp/test-results
