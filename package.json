@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "testcafe chrome:headless tests/**/* -r xunit:/tmp/test-results/res.xml"
+    "test": "testcafe chrome:headless --skip-js-errors testcafe/tests/register.js -r xunit:/tmp/test-results/res.xml"
   },
   "devDependencies": {
       "testcafe": "^0.18.4",
