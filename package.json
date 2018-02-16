@@ -1,7 +1,7 @@
 {
   "scripts": {
-    "test": "testcafe chrome:headless --skip-js-errors testcafe/tests/register.js -r xunit:/tmp/test-results/res.xml"
-    "author": "",
+    "test": "testcafe chrome:headless --skip-js-errors testcafe/tests/register.js -r xunit:/tmp/test-results/res.xml",
+    "author": "Franziska Buehler",
     "license": "Apache-2.0"
   },
   "devDependencies": {
