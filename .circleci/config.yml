@@ -125,7 +125,7 @@ jobs:
           command: |
              ls /home/circleci/project/testcafe/tests
              docker pull testcafe/testcafe
-             docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome tests/register.js --skip-js-errors -r xunit:/tmp/test-results/res.xml
+             docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors -r xunit:/tmp/test-results/res.xml
                   #       testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.js
 
 # Download and cache dependencies
