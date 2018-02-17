@@ -122,8 +122,8 @@ jobs:
       - run:
           name: Application Tests
           command: |
-                  docker pull testcafe/testcafe
-                  docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe --skip-js-errors 
+             docker pull testcafe/testcafe
+             docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome --skip-js-errors -r xunit:/tmp/test-results/res.xml  
                   #       testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.js
 
 # Download and cache dependencies
