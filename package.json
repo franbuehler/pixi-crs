@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "test": "testcafe chrome:headless --skip-js-errors testcafe/tests/register.js -r xunit:/tmp/test-results/res.xml",
+    "test": "testcafe chrome --skip-js-errors testcafe/tests/register.js -r xunit:/tmp/test-results/res.xml",
     "author": "Franziska Buehler",
     "license": "Apache-2.0"
   },
