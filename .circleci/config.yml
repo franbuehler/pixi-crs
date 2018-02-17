@@ -122,7 +122,8 @@ jobs:
       - run:
           name: Application Tests
           command: |
-             curl http://172.17.0.1:8000
+                  docker pull testcafe/testcafe
+                  docker run -v testcafe/tests:/tests -it testcafe/testcafe --skip-js-errors 
                   #       testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.js
 
 # Download and cache dependencies
