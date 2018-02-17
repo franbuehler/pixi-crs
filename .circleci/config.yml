@@ -1,8 +1,8 @@
 version: 2
 jobs:
   build:
-    machine:
-      - image: circleci/node:9.5.0-stretch-browsers
+    machine: true
+      - image: circleci/classic:latest
 
     steps:
       - checkout
