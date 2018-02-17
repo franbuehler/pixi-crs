@@ -119,10 +119,11 @@ jobs:
 #              )
 #
 
-             #      - run:
-             #name: Application Tests
-             #command: |
-             #     testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.js
+      - run:
+          name: Application Tests
+          command: |
+             curl http://172.17.0.1:8000
+                  #       testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.js
 
 # Download and cache dependencies
       - restore_cache:
