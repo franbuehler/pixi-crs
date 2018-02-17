@@ -10,6 +10,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+                  pwd
              sudo apt-get update && sudo apt-get install -y curl 
              sudo npm install -g testcafe
              
