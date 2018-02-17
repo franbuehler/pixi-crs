@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    docker:
+    machine:
       - image: circleci/node:9.5.0-stretch-browsers
 
     steps:
@@ -125,8 +125,7 @@ jobs:
           command: |
              ls /home/circleci/project/testcafe/tests
              docker pull testcafe/testcafe
-             docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors -r xunit:/tmp/test-results/res.xml
-                  #       testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.js
+             docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
 # Download and cache dependencies
       - restore_cache:
