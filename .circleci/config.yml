@@ -10,6 +10,7 @@ jobs:
       - run:
           name: Install dependencies
           command: |
+             ls /home/circleci/project/testcafe/tests
              sudo apt-get update && sudo apt-get install -y curl 
              sudo npm install -g testcafe
              
@@ -122,6 +123,7 @@ jobs:
       - run:
           name: Application Tests
           command: |
+             ls /home/circleci/project/testcafe/tests
              docker pull testcafe/testcafe
              docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome --skip-js-errors -r xunit:/tmp/test-results/res.xml tests/register.js
                   #       testcafe "chrome:headless" --skip-js-errors testcafe/tests/register.js
