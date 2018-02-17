@@ -129,8 +129,7 @@ jobs:
              docker cp /home/circleci/project/testcafe/tests/register.js configs:/tests
              # starting application container using this volume
              docker pull testcafe/testcafe
-             docker run --volumes-from configs -it testcafe/testcafe -b
-             #docker run --volumes-from configs -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
+             docker run --volumes-from configs -it testcafe/testcafe chromium /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
 # Download and cache dependencies
