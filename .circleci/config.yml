@@ -130,7 +130,7 @@ jobs:
              docker cp /home/circleci/project/testcafe/tests/register.js configs:/tests
              # starting application container using this volume
              docker pull testcafe/testcafe:alpha
-             docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe 'chromium --skip-js-errors --no-sandbox --reporter xunit:/tmp/res.xml' /tests/register.js
+             docker run --volumes-from configs:rw -e "SCREEN_WIDTH=3840" -e "SCREEN_HEIGHT=2160" --name testcafe -it testcafe/testcafe 'chromium --skip-js-errors --no-sandbox --reporter xunit:/tmp/res.xml' /tests/register.js
              docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
