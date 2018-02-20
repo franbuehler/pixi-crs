@@ -127,8 +127,6 @@ jobs:
       - run:
           name: Application Tests with CRS with Testcafe
           command: |
-             docker-compose down
-             docker-compose up -d
              docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
              docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register.js
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
