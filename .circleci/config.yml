@@ -129,7 +129,7 @@ jobs:
              # copying config file into this volume
              docker cp /home/circleci/project/testcafe/tests/register.js configs:/tests
              # starting application container using this volume
-             docker pull testcafe/testcafe:alpha
+             docker pull testcafe/testcafe
              docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors --reporter xunit:/tmp/res.xml 'chromium:headless --no-sandbox' /tests/register.js
              docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
