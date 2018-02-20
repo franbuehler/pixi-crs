@@ -7,5 +7,5 @@ test('Test DevSlop App', async t => {
    await t
       .typeText('#email', 'testuser@pixi.owasp')
       .typeText('#password', 'testpw')
-      .t.click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
+      .t.click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button');
 });

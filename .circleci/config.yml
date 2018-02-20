@@ -12,7 +12,7 @@ jobs:
           command: |
              ls /home/circleci/project/testcafe/tests
              sudo apt-get update && sudo apt-get install -y curl 
-             sudo npm install -g testcafe
+             #             sudo npm install -g testcafe
              
       - run:
           name: Install Docker Compose
