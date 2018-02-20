@@ -8,4 +8,4 @@ test('Test DevSlop App', async t => {
       .typeText('#email', 'testuser@pixi.owasp')
       .typeText('input#password', 'testpw')
       this.t.click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
-//});
+});
