@@ -30,17 +30,17 @@ jobs:
              docker-compose version
              docker-compose up -d
 
-             #      - run:
-             #          name: Start OWASP ModSecurity CRS Container in front of application
-          #http://172.17.0.2:8001
-          #          command: |
-          #             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-          #             docker pull franbuehler/modsecurity-crs && \
-          #             docker run -dt --name apache-crs -e PARANOIA=1 -e \
-          #             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8000 \
-          #             -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
+      - run:
+           name: Start OWASP ModSecurity CRS Container in front of application
+           #http://172.17.0.2:8001
+           command: |
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull franbuehler/modsecurity-crs && \
+             docker run -dt --name apache-crs -e PARANOIA=1 -e \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8000 \
+             -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
-#             docker run -dt --name apache-crs franbuehler/modsecurity-crs
+             docker run -dt --name apache-crs franbuehler/modsecurity-crs
 
 #      - run:
 #          name: ModSecurity Tuning - Load rule exclusions
@@ -131,6 +131,7 @@ jobs:
              # starting application container using this volume
              docker pull testcafe/testcafe
              docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors --reporter xunit:/tmp/res.xml 'chromium:headless --no-sandbox' /tests/register.js
+             docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors --reporter xunit:/tmp/res.xml 'chromium:headless --no-sandbox' /tests/register_crs.js
              docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
