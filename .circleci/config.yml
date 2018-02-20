@@ -128,6 +128,7 @@ jobs:
              docker create -v /tests --name configs alpine:latest /bin/true
              # copying config file into this volume
              docker cp /home/circleci/project/testcafe/tests/register.js configs:/tests
+             docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
              # starting application container using this volume
              docker pull testcafe/testcafe
              docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register.js /tests/register_crs.js
