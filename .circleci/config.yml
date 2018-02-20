@@ -40,15 +40,14 @@ jobs:
 
              #docker run -dt --name apache-crs franbuehler/modsecurity-crs
 
-#      - run:
-#          name: ModSecurity Tuning - Load rule exclusions
-#          command: |
+      - run:
+          name: ModSecurity Tuning - Load rule exclusions
+          command: |
              #REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf OR
              #RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
-#             printf "\nSecRuleRemoveById  930110\n" > tmp.conf
-#             docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-#docker exec apache-crs printf "\nSecRuleRemoveById 930110\n" > /etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-#             docker exec apache-crs /usr/sbin/httpd -k graceful
+             printf "\nSecRuleRemoveById  930110\n" > tmp.conf
+             docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+             docker exec apache-crs /usr/sbin/httpd -k graceful
 
 #      - run:
 #          name: ZAP baseline test of application
@@ -85,12 +84,6 @@ jobs:
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 
-             #test:
-             #    override:
-             #      - coverage run --source='.' manage.py test
-             #      - testcafe chrome app_1/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
-             #      - testcafe chrome app_2/tests_frontend.js --app "waitress-serve --port=8000 forestroad.wsgi:application"
-
 #      - run:
 #          name: ZAP API scan of application
 #          command: |
@@ -116,21 +109,27 @@ jobs:
 #                -t http://172.17.0.2:8001/ || \
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
-#
 
       - run:
-          name: Application Tests
+          name: Application Tests with Testcafe
           command: |
              # https://circleci.com/docs/2.0/building-docker-images/#mounting-folders
              # creating dummy container which will hold a volume with config
              docker create -v /tests --name configs alpine:latest /bin/true
              # copying config file into this volume
              docker cp /home/circleci/project/testcafe/tests/register.js configs:/tests
-             docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
              # starting application container using this volume
              docker pull testcafe/testcafe
              docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register.js
-             docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register_crs.js
+             #docker cp testcafe:/tmp/res.xml /tmp/test-results/
+             #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
+
+      - run:
+          name: Application Tests with CRS with Testcafe
+          command: |
+             docker-compose restart
+             docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
+             docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register.js
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
