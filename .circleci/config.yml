@@ -93,6 +93,15 @@ jobs:
               )
 
       - run:
+          name: curl test
+          command: |
+             (
+             docker pull hiromasaono/curl && \
+             docker run -t hiromasaono/curl --name curk && \
+             docker exec -ti curl curl http://172.17.0.1:8000/register
+             docker exec -ti curl curl http://172.17.0.2:8001/register
+             )
+      - run:
           name: ZAP API scan of application
           command: |
              (
@@ -112,7 +121,7 @@ jobs:
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-                -c /home/circleci/project/zap-api.conf \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
                 -f openapi \
                 -t http://172.17.0.3:8002/ || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
