@@ -1,3 +1,7 @@
+# Getting started with CircleCI
+# https://circleci.com/docs/2.0/first-steps/
+#
+# .circleci/config.yml
 version: 2
 jobs:
   build:
@@ -18,6 +22,7 @@ jobs:
             curl -L https://github.com/docker/compose/releases/download/1.19.0/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
             chmod +x ~/docker-compose
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
+
       - setup_remote_docker
 
       - run:
@@ -28,6 +33,15 @@ jobs:
              docker-compose version
              docker-compose up -d
 
+      # OWASP ModSecurity Core Rule Set Container (Apache Reverse Proxy)
+      # franbuehler/modsecurity-crs
+      # Environment variables:
+      # PARANOIA:   paranoia_level
+      # ANOMALYIN:  inbound_anomaly_score_threshold
+      # ANOMALYOUT: outbound_anomaly_score_threshold 
+      # See https://coreruleset.org/
+      # BACKEND:    application backend
+      # PORT:       listening port of apache, used only if port conflict
       - run:
            name: Start OWASP ModSecurity CRS Container in front of application
            #http://172.17.0.2:8001
@@ -35,7 +49,7 @@ jobs:
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
              docker run -dt --name apache-crs -e PARANOIA=1 -e \
-             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
+             ANOMALYIN=0 -e ANOMALYOUT=0 -e BACKEND=http://172.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
              #docker run -dt --name apache-crs franbuehler/modsecurity-crs
@@ -45,15 +59,20 @@ jobs:
            #http://172.17.0.3:8002
            command: |
              docker run -dt --name apache-crs-api -e PARANOIA=1 -e \
-             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8090 \
-             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
-
+             ANOMALYIN=0 -e ANOMALYOUT=0 -e BACKEND=http://172.17.0.1:8090 \
+             -p 0.0.0.0:8001:8002 franbuehler/modsecurity-crs 
+             #-e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
+ 
+      # ModSecurity Tuning:
+      # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/
+      # We use rule exclusion example files:
+      # REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf OR
+      # RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
       - run:
           name: ModSecurity Tuning - Load rule exclusions
           command: |
-             #REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf OR
-             #RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf
-             printf "\nSecRuleRemoveById  930110\n" > tmp.conf
+             # this is an example:
+             printf "\nSecRuleRemoveById  123456\n" > tmp.conf
              docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
              docker exec apache-crs /usr/sbin/httpd -k graceful
 
@@ -61,7 +80,6 @@ jobs:
 #          name: ZAP baseline test of application
 #          # Only fail on error code 1, which indicates at least one FAIL was found.
 #          # error codes 2 & 3 indicate WARN or other, and should not break the run
-#             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
 #          command: |
 #             (
 #             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
@@ -92,6 +110,7 @@ jobs:
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 
+       # Debugging possibilities:
 #      - run:
 #          name: curl test
 #          command: |
@@ -174,6 +193,3 @@ jobs:
           name: Show ModSecurity logs
           command: |
                   docker exec apache-crs-api cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
-                  #docker exec apache-crs cat /etc/httpd/logs/error.log
-                  #docker exec apache-crs cat /etc/httpd/logs/modsec_audit.log 
-
