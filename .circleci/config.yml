@@ -70,12 +70,12 @@ jobs:
       - run:
           name: ModSecurity Tuning - Load rule exclusions
           command: |
-             # this is an example:
-             printf "\nSecRuleUpdateTargetById 123456 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
-#             printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
-#             printf "\nSecRuleUpdateTargetById 942440 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
-             docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-             docker exec apache-crs /usr/sbin/httpd -k graceful
+            # this is an example:
+            printf "\nSecRuleUpdateTargetById 123456 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
+            docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+            docker exec apache-crs /usr/sbin/httpd -k graceful
+#            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
+#            printf "\nSecRuleUpdateTargetById 942440 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 
 #      - run:
 #          name: ZAP baseline test of application
@@ -83,7 +83,6 @@ jobs:
 #          # error codes 2 & 3 indicate WARN or other, and should not break the run
 #          command: |
 #             (
-#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
 #             docker pull owasp/zap2docker-weekly && \
 #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
 #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
