@@ -167,7 +167,6 @@ jobs:
           command: |
              docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
              docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register_crs.js
-          when: always
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
@@ -195,3 +194,4 @@ jobs:
           name: Show ModSecurity logs
           command: |
                   docker exec apache-crs-api cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+          when: always
