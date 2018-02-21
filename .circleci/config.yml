@@ -87,7 +87,7 @@ jobs:
 #             docker pull owasp/zap2docker-weekly && \
 #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
 #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
-#                -t http://172.17.0.1:8000/ || \
+#                -t http://172.17.0.1:8000/ -l WARN || \
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #             # docker pull ictu/zap2docker-weekly && \
 #             # docker run -t ictu/zap2docker-weekly baseline.py \
@@ -107,7 +107,7 @@ jobs:
 #             docker pull owasp/zap2docker-weekly && \
 #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
 #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
-#                -t http://172.17.0.2:8001/ || \
+#                -t http://172.17.0.2:8001/ -l WARN || \
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 
@@ -131,7 +131,7 @@ jobs:
 #             docker pull owasp/zap2docker-weekly && \
 #             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
 #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
-#                -f openapi \
+#                -f openapi -l WARN \
 #                -t http://172.17.0.1:8090/ || \
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
@@ -143,7 +143,7 @@ jobs:
 #             docker pull owasp/zap2docker-weekly && \
 #             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
 #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
-#                -f openapi \
+#                -f openapi -l WARN \
 #                -t http://172.17.0.3:8002/ || \
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
@@ -195,6 +195,7 @@ jobs:
       - run:
           name: Show ModSecurity logs of Testcafe tests
           command: |
-                  docker exec apache-crs cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+              # docker exec apache-crs cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+                  docker exec apache-crs cat /etc/httpd/logs/error.log
           # we always want to see these logs:        
           when: always
