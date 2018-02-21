@@ -100,12 +100,13 @@ jobs:
              docker run -dt --name curl hiromasaono/curl && \
              docker exec -ti curl curl http://172.17.0.1:8000/register
              docker exec -ti curl curl http://172.17.0.2:8001/register
+             docker exec -ti apache-crs cat /etc/httpd/logs/error.log
+             docker exec -ti apache-crs cat /etc/httpd/logs/port80-error.log
              )
       - run:
           name: ZAP API scan of application
           command: |
              (
-             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
@@ -118,7 +119,6 @@ jobs:
           name: ZAP API scan of application with CRS
           command: |
              (
-             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
