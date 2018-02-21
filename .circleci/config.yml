@@ -35,7 +35,7 @@ jobs:
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
              docker run -dt --name apache-crs -e PARANOIA=1 -e \
-             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8000 \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
              #docker run -dt --name apache-crs franbuehler/modsecurity-crs
@@ -45,7 +45,7 @@ jobs:
            #http://172.17.0.3:8002
            command: |
              docker run -dt --name apache-crs-api -e PARANOIA=1 -e \
-             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8090 \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8090 \
              -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
 
       - run:
@@ -92,17 +92,18 @@ jobs:
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 
-      - run:
-          name: curl test
-          command: |
-             (
-             docker pull hiromasaono/curl && \
-             docker run -dt --name curl hiromasaono/curl && \
-             docker exec -ti curl curl http://172.17.0.1:8000/register
-             docker exec -ti curl curl http://172.17.0.2:8001/register
-             docker exec -ti apache-crs cat /etc/httpd/logs/error.log
-             docker exec -ti apache-crs cat /etc/httpd/logs/port80-error.log
-             )
+#      - run:
+#          name: curl test
+#          command: |
+#             (
+#             docker pull hiromasaono/curl && \
+#             docker run -dt --name curl hiromasaono/curl && \
+#             docker exec -ti curl curl http://172.17.0.1:8000/register
+#             docker exec -ti curl curl http://172.17.0.2:8001/register
+#             docker exec -ti apache-crs cat /etc/httpd/logs/error.log
+#             docker exec -ti apache-crs curl 172.17.0.1:8000
+#             )
+#
       - run:
           name: ZAP API scan of application
           command: |
