@@ -72,7 +72,7 @@ jobs:
           name: ModSecurity Tuning - Load rule exclusions
           command: |
             # this is an example:
-            printf "\nSecRuleUpdateTargetById 123456 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
+            printf "\nSecRuleRemoveById 920350\n" > tmp.conf
             docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apache-crs /usr/sbin/httpd -k graceful
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
@@ -158,6 +158,7 @@ jobs:
              docker cp /home/circleci/project/testcafe/tests/register.js configs:/tests
              # starting application container using this volume
              docker pull testcafe/testcafe
+             # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
              docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register.js
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
@@ -166,6 +167,7 @@ jobs:
           name: Application Tests with CRS with Testcafe
           command: |
              docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
+             # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
              docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register_crs.js
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
