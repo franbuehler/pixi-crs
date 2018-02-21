@@ -40,8 +40,9 @@ jobs:
       # ANOMALYIN:  inbound_anomaly_score_threshold
       # ANOMALYOUT: outbound_anomaly_score_threshold 
       # See https://coreruleset.org/
+      #
       # BACKEND:    application backend
-      # PORT:       listening port of apache, used only if port conflict
+      # PORT:       listening port of apache, this port must be exposed: --expose
       - run:
            name: Start OWASP ModSecurity CRS Container in front of application
            #http://172.17.0.2:8001
@@ -166,6 +167,7 @@ jobs:
           command: |
              docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
              docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register_crs.js
+          when: always
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
