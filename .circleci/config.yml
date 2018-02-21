@@ -41,6 +41,14 @@ jobs:
              #docker run -dt --name apache-crs franbuehler/modsecurity-crs
 
       - run:
+           name: Start OWASP ModSecurity CRS Container in front of API
+           #http://172.17.0.3:8002
+           command: |
+             docker run -dt --name apache-crs-api -e PARANOIA=1 -e \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://127.17.0.1:8090 \
+             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
+
+      - run:
           name: ModSecurity Tuning - Load rule exclusions
           command: |
              #REQUEST-900-EXCLUSION-RULES-BEFORE-CRS.conf OR
@@ -69,46 +77,46 @@ jobs:
 #             #  if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 
-#      - run:
-#          name: ZAP baseline test of application with CRS
-#          # Only fail on error code 1, which indicates at least one FAIL was found.
-#          # error codes 2 & 3 indicate WARN or other, and should not break the run
-#             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
-#          command: |
-#             (
-#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-#             docker pull owasp/zap2docker-weekly && \
-#             docker run -t owasp/zap2docker-weekly zap-baseline.py \
-#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
-#                -t http://172.17.0.2:8001/ || \
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
+      - run:
+          name: ZAP baseline test of application with CRS
+          # Only fail on error code 1, which indicates at least one FAIL was found.
+          # error codes 2 & 3 indicate WARN or other, and should not break the run
+             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -t http://172.17.0.2:8001/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
 
-#      - run:
-#          name: ZAP API scan of application
-#          command: |
-#             (
-#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-#             docker pull owasp/zap2docker-weekly && \
-#             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
-#                -f openapi \
-#                -t http://172.17.0.1:8000/ || \
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
-#
-#      - run:
-#          name: ZAP API scan of application with CRS
-#          command: |
-#             (
-#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-#             docker pull owasp/zap2docker-weekly && \
-#             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
-#                -f openapi \
-#                -t http://172.17.0.2:8001/ || \
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
+      - run:
+          name: ZAP API scan of application
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
+                -f openapi \
+                -t http://172.17.0.1:8090/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
+
+      - run:
+          name: ZAP API scan of application with CRS
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVSIIirxrwguMIhtn7v3kaQMLrNwGks5agEAxwA \
+                -f openapi \
+                -t http://172.17.0.3:8002/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
 
       - run:
           name: Application Tests with Testcafe
@@ -155,7 +163,7 @@ jobs:
       - run:
           name: Show ModSecurity logs
           command: |
-                  docker exec apache-crs cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+                  docker exec apache-crs-api cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
                   #docker exec apache-crs cat /etc/httpd/logs/error.log
                   #docker exec apache-crs cat /etc/httpd/logs/modsec_audit.log 
 
