@@ -49,17 +49,17 @@ jobs:
            command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
-             docker run -dt --name apache-crs -e PARANOIA=1 -e \
+             docker run -dt --name apachecrs -e PARANOIA=1 -e \
              ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
-             #docker run -dt --name apache-crs franbuehler/modsecurity-crs
+             #docker run -dt --name apachecrs franbuehler/modsecurity-crs
 
 #      - run:
 #           name: Start OWASP ModSecurity CRS Container in front of API
 #           #http://172.17.0.3:8002
 #           command: |
-#             docker run -dt --name apache-crs-api -e PARANOIA=1 -e \
+#             docker run -dt --name apachecrsapi -e PARANOIA=1 -e \
 #             ANOMALYIN=0 -e ANOMALYOUT=0 -e BACKEND=http://172.17.0.1:8090 \
 #             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
  
@@ -73,8 +73,8 @@ jobs:
           command: |
             # this is an example:
             printf "\nSecRuleRemoveById 920350\n" > tmp.conf
-            docker cp tmp.conf apache-crs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-            docker exec apache-crs /usr/sbin/httpd -k graceful
+            docker cp tmp.conf apachecrs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+            docker exec apachecrs /usr/sbin/httpd -k graceful
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 #            printf "\nSecRuleUpdateTargetById 942440 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 
@@ -120,8 +120,8 @@ jobs:
 #             docker run -dt --name curl hiromasaono/curl && \
 #             docker exec -ti curl curl http://172.17.0.1:8000/register
 #             docker exec -ti curl curl http://172.17.0.2:8001/register
-#             docker exec -ti apache-crs cat /etc/httpd/logs/error.log
-#             docker exec -ti apache-crs curl 172.17.0.1:8000
+#             docker exec -ti apachecrs cat /etc/httpd/logs/error.log
+#             docker exec -ti apachecrs curl 172.17.0.1:8000
 #             )
 #
 #      - run:
@@ -172,34 +172,25 @@ jobs:
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/testcrs.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
-# Download and cache dependencies
-#      - restore_cache:
-#           keys:
-#           - v1-dependencies-{{ checksum "package.json" }}
-#            # fallback to using the latest cache if no exact match is found
-#           - v1-dependencies-
-#
-#      - run: yarn install
-#
-#      - save_cache:
-#           paths:
-#            - node_modules
-#           key: v1-dependencies-{{ checksum "package.json" }}
-#
-#      # run tests!
-#      - run: yarn test
+      - run:
+          name: Show ModSecurity logs of Testcafe tests
+          command: |
+              docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile | tee /tmp/test-results/ModSecurity-Testcafe.log
+              # If not empty -> Repair your application OR
+              #              -> ModSecurity Tuning:
+              # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
+              #              -> GitHub issue: https://github.com/SpiderLabs/owasp-modsecurity-crs
+          # we always want to see this step:        
+          when: always
+
+#      - run:
+#          name: Show ModSecurity logs of ZAP API Scan
+#          command: |
+#              docker exec apachecrsapi cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile
+#              # If not empty -> Repair your application OR
+#          # we always want to see this step:        
+#          when: always
 
       - store_test_results:
            path: /tmp/test-results
 
-      - run:
-          name: Show ModSecurity logs of Testcafe tests
-          command: |
-              # docker exec apache-crs cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
-              docker exec apache-crs cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile
-              # If not empty -> Repair in your application OR
-              #              -> ModSecurity Tuning:
-              # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
-              #              -> GitHub issue: https://github.com/SpiderLabs/owasp-modsecurity-crs
-          # we always want to see these logs:        
-          when: always
