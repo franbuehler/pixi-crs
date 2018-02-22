@@ -155,22 +155,22 @@ jobs:
              # creating dummy container which will hold a volume with config
              docker create -v /tests --name configs alpine:latest /bin/true
              # copying config file into this volume
-             docker cp /home/circleci/project/testcafe/tests/register.js configs:/tests
+             docker cp /home/circleci/project/testcafe/tests/test.js configs:/tests
              # starting application container using this volume
              docker pull testcafe/testcafe
              # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
-             docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register.js
+             docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/test.js
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
-             #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
+             #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/test.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
       - run:
           name: Application Tests with CRS with Testcafe
           command: |
-             docker cp /home/circleci/project/testcafe/tests/register_crs.js configs:/tests
+             docker cp /home/circleci/project/testcafe/tests/testcrs.js configs:/tests
              # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
-             docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/register_crs.js
+             docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/testcrs.js
              #docker cp testcafe:/tmp/res.xml /tmp/test-results/
-             #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/register.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
+             #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/testcrs.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
 # Download and cache dependencies
 #      - restore_cache:
