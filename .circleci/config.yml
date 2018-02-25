@@ -126,17 +126,17 @@ jobs:
 #             docker exec -ti apachecrs curl 172.17.0.1:8000
 #             )
 #
-#      - run:
-#          name: ZAP API scan of application
-#          command: |
-#             (
-#             docker pull owasp/zap2docker-weekly && \
-#             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
-#                -f openapi -l WARN \
-#                -t http://172.17.0.1:8090/ || \
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
+      - run:
+          name: ZAP API scan of application
+          command: |
+             (
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
+                -f openapi -l WARN \
+                -t http://172.17.0.1:8090/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
 #
 #      - run:
 #          name: ZAP API scan of application with CRS
