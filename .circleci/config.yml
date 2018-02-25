@@ -134,13 +134,13 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
                 -f openapi -l WARN \
-                -t http://172.17.0.1:8090/ || \
+                -t http://172.17.0.1:8090/ \
                 -z "config formhandler.fields.field\(0\).fieldId=email" \
                 -z "config formhandler.fields.field\(0\).value=test@pixi.owasp" \
                 -z "config formhandler.fields.field\(0\).enabled=true" \
                 -z "config formhandler.fields.field\(1\).fieldId=password" \
                 -z "config formhandler.fields.field\(1\).value=testpass" \
-                -z "config formhandler.fields.field\(1\).enabled=true"
+                -z "config formhandler.fields.field\(1\).enabled=true" || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
 #
