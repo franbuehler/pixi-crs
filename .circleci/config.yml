@@ -134,7 +134,6 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
                 -f openapi -l WARN \
-                #-t http://172.17.0.1:8090/swagger.json \
                 -t http://172.17.0.1:8090/register \
                 -z "config formhandler.fields.field\(0\).fieldId=user" \
                 -z "config formhandler.fields.field\(0\).value=test@pixi.owasp" \
@@ -144,6 +143,7 @@ jobs:
                 -z "config formhandler.fields.field\(1\).enabled=true" || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
+                #-t http://172.17.0.1:8090/swagger.json \
 #
 #      - run:
 #          name: ZAP API scan of application with CRS
