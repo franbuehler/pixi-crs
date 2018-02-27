@@ -46,7 +46,7 @@ jobs:
       # BACKEND:    application backend
       # PORT:       listening port of apache, this port must be exposed: --expose
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of application. Purpose: application tests
+           name: Start OWASP ModSecurity CRS Container in front of application for application tests
            #http://172.17.0.2:8001
            #we set inbound and outbound anomaly score to 1, no tolerance
            command: |
@@ -59,7 +59,7 @@ jobs:
              #docker run -dt --name apachecrs franbuehler/modsecurity-crs
 
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of API (purpose: ZAP scan)
+           name: Start OWASP ModSecurity CRS Container in front of API for ZAP scan
            #http://172.17.0.3:8002
            #we set inbound and outbound anomaly score to 100, we want to see all errors
            command: |
@@ -68,7 +68,7 @@ jobs:
              -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
  
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of application  (purpose: ZAP scan)
+           name: Start OWASP ModSecurity CRS Container in front of application for ZAP scan
            #http://172.17.0.4:8003
            #we set inbound and outbound anomaly score to 100, we want to see all errors
            command: |
