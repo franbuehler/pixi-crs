@@ -46,7 +46,7 @@ jobs:
       # BACKEND:    application backend
       # PORT:       listening port of apache, this port must be exposed: --expose
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of application (purpose: application tests)
+           name: Start OWASP ModSecurity CRS Container in front of application. Purpose: application tests
            #http://172.17.0.2:8001
            #we set inbound and outbound anomaly score to 1, no tolerance
            command: |
