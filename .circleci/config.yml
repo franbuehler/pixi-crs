@@ -15,8 +15,7 @@ jobs:
           name: Install dependencies
           command: |
              sudo apt-get update && sudo apt-get install -y curl 
-             mkdir -p /tmp/test-results/testcafe
-             mkdir -p /tmp/test-results/modsecurity
+             mkdir -p /tmp/test-results/
              
       - run:
           name: Install Docker Compose
@@ -68,7 +67,7 @@ jobs:
              -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
  
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of application for ZAP scan
+           name: Start OWASP ModSecurity CRS Container in front of application for ZAP Baseline scan
            #http://172.17.0.4:8003
            #we set inbound and outbound anomaly score to 100, we want to see all errors
            command: |
@@ -88,8 +87,12 @@ jobs:
             # because we use IP addresses instead of hostnames.
             # This rule must not be excluded in production!
             printf "\nSecRuleRemoveById 920350\n" > tmp.conf
+            # CRS container for application tests:
             docker cp tmp.conf apachecrs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrs /usr/sbin/httpd -k graceful
+            # CRS container for ZAP Baseline Scan:
+            docker cp tmp.conf apachecrsapi:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+            docker exec apachecrsapi /usr/sbin/httpd -k graceful
 #            Examples:
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 #            printf "\nSecRuleUpdateTargetById 942440 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
@@ -114,7 +117,6 @@ jobs:
              #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
           command: |
              (
-             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-baseline.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
@@ -202,14 +204,14 @@ jobs:
       - run:
           name: Show ModSecurity logs of ZAP API Scan
           command: |
-              docker exec apachecrsapi cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+              docker exec apachecrsapi cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-API-scan.log
           # we always want to see this step:        
           when: always
 
       - run:
           name: Show ModSecurity logs of ZAP Baseline Scan
           command: |
-              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile | tee /tmp/test-results/ModSecurity-Testcafe.log | tee /tmp/test-results/ModSecurity-ZAP-baseline-scan.log
           # we always want to see this step:        
           when: always
 
