@@ -46,8 +46,9 @@ jobs:
       # BACKEND:    application backend
       # PORT:       listening port of apache, this port must be exposed: --expose
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of application
+           name: Start OWASP ModSecurity CRS Container in front of application (purpose: application tests)
            #http://172.17.0.2:8001
+           #we set inbound and outbound anomaly score to 1, no tolerance
            command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
@@ -57,14 +58,24 @@ jobs:
 
              #docker run -dt --name apachecrs franbuehler/modsecurity-crs
 
-#      - run:
-#           name: Start OWASP ModSecurity CRS Container in front of API
-#           #http://172.17.0.3:8002
-#           command: |
-#             docker run -dt --name apachecrsapi -e PARANOIA=1 -e \
-#             ANOMALYIN=0 -e ANOMALYOUT=0 -e BACKEND=http://172.17.0.1:8090 \
-#             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
+      - run:
+           name: Start OWASP ModSecurity CRS Container in front of API (purpose: ZAP scan)
+           #http://172.17.0.3:8002
+           #we set inbound and outbound anomaly score to 100, we want to see all errors
+           command: |
+             docker run -dt --name apachecrsapi -e PARANOIA=1 -e \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8090 \
+             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
  
+      - run:
+           name: Start OWASP ModSecurity CRS Container in front of application  (purpose: ZAP scan)
+           #http://172.17.0.4:8003
+           #we set inbound and outbound anomaly score to 100, we want to see all errors
+           command: |
+             docker run -dt --name apachecrszap -e PARANOIA=1 -e \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
+             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
+
       # ModSecurity Tuning:
       # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/
       # We use rule exclusion example files:
@@ -73,45 +84,43 @@ jobs:
       - run:
           name: ModSecurity Tuning - Load rule exclusions
           command: |
-            # this is an example:
+            # rule 920350 (msg: Host header is a numeric IP address) triggers, 
+            # because we use IP addresses instead of hostnames.
+            # This rule must not be excluded in production!
             printf "\nSecRuleRemoveById 920350\n" > tmp.conf
             docker cp tmp.conf apachecrs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrs /usr/sbin/httpd -k graceful
+#            Examples:
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 #            printf "\nSecRuleUpdateTargetById 942440 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 
-#      - run:
-#          name: ZAP baseline test of application
-#          # Only fail on error code 1, which indicates at least one FAIL was found.
-#          # error codes 2 & 3 indicate WARN or other, and should not break the run
-#          command: |
-#             (
-#             docker pull owasp/zap2docker-weekly && \
-#             docker run -t owasp/zap2docker-weekly zap-baseline.py \
-#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
-#                -t http://172.17.0.1:8000/ -l WARN || \
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#             # docker pull ictu/zap2docker-weekly && \
-#             # docker run -t ictu/zap2docker-weekly baseline.py \
-#             #    -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVcLZSbEfwBTEEYEgpmtKc6x3CDtMks5aY0pXwA --active_scan \
-#             #    -t http://172.17.0.1:8000/ || \
-#             #  if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
+      - run:
+          name: ZAP baseline scan of application (without CRS)
+          # Only fail on error code 1, which indicates at least one FAIL was found.
+          # error codes 2 & 3 indicate WARN or other, and should not break the run
+          command: |
+             (
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -t http://172.17.0.1:8000/ -l WARN || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
 
-#      - run:
-#          name: ZAP baseline test of application with CRS
-#          # Only fail on error code 1, which indicates at least one FAIL was found.
-#          # error codes 2 & 3 indicate WARN or other, and should not break the run
-#             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
-#          command: |
-#             (
-#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-#             docker pull owasp/zap2docker-weekly && \
-#             docker run -t owasp/zap2docker-weekly zap-baseline.py \
-#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
-#                -t http://172.17.0.2:8001/ -l WARN || \
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
+      - run:
+          name: ZAP baseline test of application with CRS
+          # Only fail on error code 1, which indicates at least one FAIL was found.
+          # error codes 2 & 3 indicate WARN or other, and should not break the run
+             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -t http://172.17.0.4:8003/ -l WARN || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
 
        # Debugging possibilities:
 #      - run:
@@ -134,7 +143,7 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
                 -f openapi -l WARN \
-                -t http://172.17.0.1:8090/register \
+                -t http://172.17.0.1:8090/swagger.json \
                 -z "config formhandler.fields.field\(0\).fieldId=user" \
                 -z "config formhandler.fields.field\(0\).value=test@pixi.owasp" \
                 -z "config formhandler.fields.field\(0\).enabled=true" \
@@ -143,19 +152,18 @@ jobs:
                 -z "config formhandler.fields.field\(1\).enabled=true" || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
-                #-t http://172.17.0.1:8090/swagger.json \
-#
-#      - run:
-#          name: ZAP API scan of application with CRS
-#          command: |
-#             (
-#             docker pull owasp/zap2docker-weekly && \
-#             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-#                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
-#                -f openapi -l WARN \
-#                -t http://172.17.0.3:8002/ || \
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
+
+      - run:
+          name: ZAP API scan of application with CRS
+          command: |
+             (
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
+                -f openapi -l WARN \
+                -t http://172.17.0.3:8002/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
 
       - run:
           name: Application Tests with Testcafe
@@ -191,13 +199,19 @@ jobs:
           # we always want to see this step:        
           when: always
 
-#      - run:
-#          name: Show ModSecurity logs of ZAP API Scan
-#          command: |
-#              docker exec apachecrsapi cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile
-#              # If not empty -> Repair your application OR
-#          # we always want to see this step:        
-#          when: always
+      - run:
+          name: Show ModSecurity logs of ZAP API Scan
+          command: |
+              docker exec apachecrsapi cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+          # we always want to see this step:        
+          when: always
+
+      - run:
+          name: Show ModSecurity logs of ZAP Baseline Scan
+          command: |
+              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n
+          # we always want to see this step:        
+          when: always
 
       - store_test_results:
            path: /tmp/test-results
