@@ -99,9 +99,19 @@ jobs:
 #            Examples:
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 #            printf "\nSecRuleUpdateTargetById 942440 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
+#
+      - run:
+          name: ZAP Baseline Scan of application (without CRS)
+          command: |
+             (
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+                -t http://172.17.0.1:8000/ -l WARN || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+             )
 
       - run:
-          name: ZAP active scan of application (without CRS)
+          name: ZAP Active Scan of application (without CRS)
           command: |
              (
              docker pull ictu/zap2docker-weekly && \
@@ -131,12 +141,6 @@ jobs:
                 --auth_usernamefield user --auth_passwordfield pass \
                 --auth_auto --auth_username pixiadmin --auth_password adminpixi
                 )
-             #             docker pull owasp/zap2docker-weekly && \
-             #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
-             #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
-             #                -t http://172.17.0.4:8003/ -l WARN || \
-             #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-             #              )
 
        # Debugging possibilities:
 #      - run:
