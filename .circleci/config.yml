@@ -123,6 +123,7 @@ jobs:
                 --auth_auto --auth_username pixiadmin --auth_password adminpixi \\
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
                 -t http://172.17.0.4:8003/ -l WARN
+                )
              #             docker pull owasp/zap2docker-weekly && \
              #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
              #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
@@ -132,7 +133,6 @@ jobs:
               #Active:
               #              docker run -t owasp/zap2docker-weekly zapr \
               #    http://172.17.0.4:8003/ 
-              #)
 
        # Debugging possibilities:
 #      - run:
