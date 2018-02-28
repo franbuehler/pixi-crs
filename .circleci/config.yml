@@ -169,8 +169,8 @@ jobs:
                 -z "config formhandler.fields.field\(1\).fieldId=pass" \
                 -z "config formhandler.fields.field\(1\).value=testpass" \
                 -z "config formhandler.fields.field\(1\).enabled=true" 
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
+#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 
       - run:
           name: ZAP API scan of application with CRS
@@ -181,8 +181,8 @@ jobs:
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
                 -f openapi -l WARN \
                 -t http://172.17.0.3:8002/
-                #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
+                #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 
       - run:
           name: Application Tests with Testcafe
