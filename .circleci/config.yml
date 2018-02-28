@@ -58,7 +58,7 @@ jobs:
              #docker run -dt --name apachecrs franbuehler/modsecurity-crs
 
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of API for ZAP scan
+           name: Start OWASP ModSecurity CRS Container in front of API for ZAP Scan
            #http://172.17.0.3:8002
            #we set inbound and outbound anomaly score to 100, we want to see all errors
            command: |
@@ -67,7 +67,7 @@ jobs:
              -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
  
       - run:
-           name: Start OWASP ModSecurity CRS Container in front of application for ZAP Baseline scan
+           name: Start OWASP ModSecurity CRS Container in front of application for ZAP Active Scan
            #http://172.17.0.4:8003
            #we set inbound and outbound anomaly score to 100, we want to see all errors
            command: |
@@ -125,9 +125,7 @@ jobs:
              (
              docker pull ictu/zap2docker-weekly && \
              docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVdsOJyRhKT4KJ2SNn1sjz2AYerbtks5aoFKiwA \
                 -t http://172.17.0.4:8003/ -l WARN \
-                -g gen.conf \
                 --active_scan \
                 --auth_loginurl http://172.17.0.4:8003/login \
                 --auth_usernamefield user --auth_passwordfield pass \
@@ -139,9 +137,6 @@ jobs:
              #                -t http://172.17.0.4:8003/ -l WARN || \
              #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
              #              )
-              #Active:
-              #              docker run -t owasp/zap2docker-weekly zapr \
-              #    http://172.17.0.4:8003/ 
 
        # Debugging possibilities:
 #      - run:
