@@ -102,14 +102,11 @@ jobs:
 
       - run:
           name: ZAP active scan of application (without CRS)
-          # Only fail on error code 1, which indicates at least one FAIL was found.
-          # error codes 2 & 3 indicate WARN or other, and should not break the run
           command: |
              (
              docker pull ictu/zap2docker-weekly && \
              docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
                 -t http://172.17.0.1:8000/ -l WARN \
-                -g gen.conf \
                 --active_scan \
                 --auth_loginurl http://172.17.0.1:8000/login \
                 --auth_usernamefield user --auth_passwordfield pass \
