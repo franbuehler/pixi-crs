@@ -108,7 +108,7 @@ jobs:
              (
              docker pull ictu/zap2docker-weekly && \
              docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVdsOJyRhKT4KJ2SNn1sjz2AYerbtks5aoFKiwA \
                 -t http://172.17.0.1:8000/ -l WARN \
                 --active_scan \
                 --auth_loginurl http://172.17.0.4:8003/login \
@@ -125,7 +125,7 @@ jobs:
              (
              docker pull ictu/zap2docker-weekly && \
              docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVdsOJyRhKT4KJ2SNn1sjz2AYerbtks5aoFKiwA \
                 -t http://172.17.0.4:8003/ -l WARN \
                 --active_scan \
                 --auth_loginurl http://172.17.0.4:8003/login \
