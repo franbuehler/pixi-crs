@@ -121,12 +121,12 @@ jobs:
              docker run -t ictu/zap2docker-weekly zap-baseline.py \
                 --auth_loginurl http://172.17.0.4:8003/login \\
                 --auth_auto --auth_username pixiadmin --auth_password adminpixi \\
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
                 -t http://172.17.0.4:8003/ -l WARN
                 )
              #             docker pull owasp/zap2docker-weekly && \
              #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
-             #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+             #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
              #                -t http://172.17.0.4:8003/ -l WARN || \
              #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
              #              )
@@ -153,7 +153,7 @@ jobs:
              (
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
                 -f openapi -l WARN \
                 -t http://172.17.0.1:8090/swagger.json \
                 -z "config formhandler.fields.field\(0\).fieldId=user" \
@@ -171,7 +171,7 @@ jobs:
              (
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVWfJc_1nytTWjO9qXejLI07dOxdXks5altKzwA \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
                 -f openapi -l WARN \
                 -t http://172.17.0.3:8002/ || \
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
