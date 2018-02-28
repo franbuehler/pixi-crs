@@ -117,10 +117,15 @@ jobs:
              #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
           command: |
              (
-             docker pull owasp/zap2docker-weekly && \
-             docker run -t owasp/zap2docker-weekly zapr --debug --summary \
-                http://172.17.0.4:8003/  || \
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+             #             docker pull owasp/zap2docker-weekly && \
+             #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+             #                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+             #                -t http://172.17.0.4:8003/ -l WARN || \
+             #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+             #              )
+              #Active:
+              docker run -t owasp/zap2docker-weekly zapr \
+                 http://172.17.0.4:8003/ 
               )
 
        # Debugging possibilities:
