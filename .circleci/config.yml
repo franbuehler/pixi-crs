@@ -118,11 +118,12 @@ jobs:
           command: |
              (
              docker pull ictu/zap2docker-weekly && \
-             docker run -t ictu/zap2docker-weekly zap-baseline.py \
+             docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
+                -t http://172.17.0.4:8003/ -l WARN \
+                --active_scan \
                 --auth_loginurl http://172.17.0.4:8003/login \
                 --auth_auto --auth_username pixiadmin --auth_password adminpixi \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
-                -t http://172.17.0.4:8003/ -l WARN
                 )
              #             docker pull owasp/zap2docker-weekly && \
              #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
