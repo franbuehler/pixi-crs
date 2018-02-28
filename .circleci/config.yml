@@ -114,7 +114,9 @@ jobs:
                 --active_scan \
                 --auth_loginurl http://172.17.0.1:8000/login \
                 --auth_usernamefield user --auth_passwordfield pass \
-                --auth_auto --auth_username pixiadmin --auth_password adminpixi
+                --auth_auto --auth_username pixiadmin --auth_password adminpixi || \
+                # we know this is an insecure application:
+                exit 0
                 #if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
 
