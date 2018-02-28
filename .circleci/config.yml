@@ -90,24 +90,30 @@ jobs:
             # CRS container for application tests:
             docker cp tmp.conf apachecrs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrs /usr/sbin/httpd -k graceful
-            # CRS container for ZAP Baseline Scan:
+            # CRS container for ZAP API Scan:
             docker cp tmp.conf apachecrsapi:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrsapi /usr/sbin/httpd -k graceful
+            # CRS container for ZAP Scan:
+            docker cp tmp.conf apachecrszap:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+            docker exec apachecrszap /usr/sbin/httpd -k graceful
 #            Examples:
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 #            printf "\nSecRuleUpdateTargetById 942440 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
 
       - run:
-          name: ZAP baseline scan of application (without CRS)
+          name: ZAP active scan of application (without CRS)
           # Only fail on error code 1, which indicates at least one FAIL was found.
           # error codes 2 & 3 indicate WARN or other, and should not break the run
           command: |
              (
-             docker pull owasp/zap2docker-weekly && \
-             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+             docker pull ictu/zap2docker-weekly && \
+             docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
                 -t http://172.17.0.1:8000/ -l WARN || \
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+                --active_scan \
+                --auth_loginurl http://172.17.0.4:8003/login \
+                --auth_auto --auth_username pixiadmin --auth_password adminpixi
+                #if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
 
       - run:
@@ -123,7 +129,7 @@ jobs:
                 -t http://172.17.0.4:8003/ -l WARN \
                 --active_scan \
                 --auth_loginurl http://172.17.0.4:8003/login \
-                --auth_auto --auth_username pixiadmin --auth_password adminpixi \
+                --auth_auto --auth_username pixiadmin --auth_password adminpixi
                 )
              #             docker pull owasp/zap2docker-weekly && \
              #             docker run -t owasp/zap2docker-weekly zap-baseline.py \
@@ -149,7 +155,7 @@ jobs:
 #             )
 #
       - run:
-          name: ZAP API scan of application
+          name: ZAP API scan of application (without CRS)
           command: |
              (
              docker pull owasp/zap2docker-weekly && \
@@ -162,8 +168,8 @@ jobs:
                 -z "config formhandler.fields.field\(0\).enabled=true" \
                 -z "config formhandler.fields.field\(1\).fieldId=pass" \
                 -z "config formhandler.fields.field\(1\).value=testpass" \
-                -z "config formhandler.fields.field\(1\).enabled=true" || \
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+                -z "config formhandler.fields.field\(1\).enabled=true" 
+#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
 
       - run:
@@ -174,8 +180,8 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
                 -f openapi -l WARN \
-                -t http://172.17.0.3:8002/ || \
-              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+                -t http://172.17.0.3:8002/
+                #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
 
       - run:
@@ -202,7 +208,7 @@ jobs:
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/testcrs.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
       - run:
-          name: Show ModSecurity logs of Testcafe tests
+          name: Show ModSecurity logs of Testcafe Tests
           command: |
               docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile | tee /tmp/test-results/ModSecurity-Testcafe.log
               # If not empty -> Repair your application OR
@@ -220,9 +226,9 @@ jobs:
           when: always
 
       - run:
-          name: Show ModSecurity logs of ZAP Baseline Scan
+          name: Show ModSecurity logs of ZAP Active Scan
           command: |
-              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile | tee /tmp/test-results/ModSecurity-Testcafe.log | tee /tmp/test-results/ModSecurity-ZAP-baseline-scan.log
+              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-active-scan.log
           # we always want to see this step:        
           when: always
 
