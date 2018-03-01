@@ -109,6 +109,8 @@ jobs:
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
              )
 
+#      # This Active Scan has to be developed: a custom config_file and context file
+#      # This Active Scan takes about 3,5 minutes to run
 #      - run:
 #          name: ZAP Active Scan of application (without CRS)
 #          command: |
@@ -125,6 +127,8 @@ jobs:
 #                #if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 #
+#      # This Active Scan has to be developed: a custom config_file and context file
+#      # This Active Scan takes about 3,5 minutes to run
 #      - run:
 #          name: ZAP active scan of application with CRS
 #          # Only fail on error code 1, which indicates at least one FAIL was found.
@@ -214,7 +218,8 @@ jobs:
           # Fail if ModSecurity log is not empty
           name: Show ModSecurity logs of Testcafe Tests
           command: |
-              docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | tee /tmp/test-results/ModSecurity-Testcafe.log
+              docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
+              if [ $? -eq 0 ]; then echo "Application tests matched one or multiple ModSecurity rules!"; exit 1; else exit 0; fi;
               # If not empty -> Repair your application OR
               #              -> ModSecurity Tuning:
               # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
@@ -233,7 +238,7 @@ jobs:
       - run:
           name: Show ModSecurity logs of ZAP Baseline Scan
           command: |
-              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-active-scan.log || \
+              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-baseline-scan.log || \
               if [ $? -eq 1 ]; then echo "Empty or not existing ModSecurity log from ZAP Baseline scan"; exit 1; else exit 0; fi;
           # we always want to see this step:        
           when: always
