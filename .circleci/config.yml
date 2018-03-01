@@ -222,7 +222,7 @@ jobs:
           name: Show ModSecurity logs of Testcafe Tests
           command: |
               docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log
-              #              if [ $? -eq 0 ]; then echo "Application tests matched one or multiple ModSecurity rules!" exit 1; else exit 0; fi;
+              if [ $? -eq 0 ]; then echo "Application tests matched one or multiple ModSecurity rules!"; exit 1; else exit 0; fi;
               # If not empty -> Repair your application OR
               #              -> ModSecurity Tuning:
               # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
