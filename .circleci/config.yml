@@ -155,13 +155,14 @@ jobs:
 #             docker exec -ti apachecrs curl 172.17.0.1:8000
 #             )
 #
+      # A zap-api.conf could be developed
       - run:
           name: ZAP API scan of application (without CRS)
           command: |
              (
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVdBQnWmIHjOULcbaM-1untbAtqkkks5aoZmqwA \
                 -f openapi -l WARN \
                 -t http://172.17.0.1:8090/swagger.json \
                 -z "config formhandler.fields.field\(0\).fieldId=user" \
@@ -173,13 +174,14 @@ jobs:
               )
 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 
+      # A zap-api.conf could be developed
       - run:
           name: ZAP API scan of application with CRS
           command: |
              (
              docker pull owasp/zap2docker-weekly && \
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
-                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVeSUr35QsmuDRNq1iVsz11uFhUezks5an9wcwA \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVdBQnWmIHjOULcbaM-1untbAtqkkks5aoZmqwA \
                 -f openapi -l WARN \
                 -t http://172.17.0.3:8002/
               )
@@ -209,9 +211,10 @@ jobs:
              #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/testcrs.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
       - run:
+          # Fail if ModSecurity log is not empty
           name: Show ModSecurity logs of Testcafe Tests
           command: |
-              docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | grep -v compile | tee /tmp/test-results/ModSecurity-Testcafe.log
+              docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | tee /tmp/test-results/ModSecurity-Testcafe.log
               # If not empty -> Repair your application OR
               #              -> ModSecurity Tuning:
               # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
@@ -222,14 +225,15 @@ jobs:
       - run:
           name: Show ModSecurity logs of ZAP API Scan
           command: |
-              docker exec apachecrsapi cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-API-scan.log
+              docker exec apachecrsapi cat /etc/httpd/logs/error.log 
           # we always want to see this step:        
           when: always
 
       - run:
-          name: Show ModSecurity logs of ZAP Active Scan
+          name: Show ModSecurity logs of ZAP Baseline Scan
           command: |
-              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-active-scan.log
+              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-active-scan.log || \
+              if [ $? -eq 1 ]; then echo "Empty or not existing ModSecurity log from ZAP Baseline scan"; exit 1; else exit 0; fi;
           # we always want to see this step:        
           when: always
 
