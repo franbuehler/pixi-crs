@@ -190,9 +190,9 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVdBQnWmIHjOULcbaM-1untbAtqkkks5aoZmqwA \
                 -f openapi -l WARN \
-                -t http://172.17.0.3:8002/swagger.json
+                -t http://172.17.0.3:8002/swagger.json || \
+                if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
               )
-                #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 
       - run:
           name: Application Tests with Testcafe
