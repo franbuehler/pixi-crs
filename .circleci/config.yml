@@ -170,15 +170,15 @@ jobs:
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVdBQnWmIHjOULcbaM-1untbAtqkkks5aoZmqwA \
                 -f openapi -l WARN \
                 -t http://172.17.0.1:8090/swagger.json || \
+                # we know this is an insecure application:
+                exit 0
+              )
 #                -z "config formhandler.fields.field\(0\).fieldId=user" \
 #                -z "config formhandler.fields.field\(0\).value=test@pixi.owasp" \
 #                -z "config formhandler.fields.field\(0\).enabled=true" \
 #                -z "config formhandler.fields.field\(1\).fieldId=pass" \
 #                -z "config formhandler.fields.field\(1\).value=testpass" \
 #                -z "config formhandler.fields.field\(1\).enabled=true" || \
-                # we know this is an insecure application:
-                exit 0
-              )
 
       # A zap-api.conf could be developed
       - run:
