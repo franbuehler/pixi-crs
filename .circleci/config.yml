@@ -109,6 +109,7 @@ jobs:
               if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
              )
 
+#      # https://hub.docker.com/r/ictu/zap2docker-weekly/
 #      # This Active Scan has to be developed: a custom config_file and context file
 #      # This Active Scan takes about 3,5 minutes to run
 #      - run:
@@ -127,6 +128,7 @@ jobs:
 #                #if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 #              )
 #
+#      # https://hub.docker.com/r/ictu/zap2docker-weekly/
 #      # This Active Scan has to be developed: a custom config_file and context file
 #      # This Active Scan takes about 3,5 minutes to run
 #      - run:
@@ -167,13 +169,13 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVdBQnWmIHjOULcbaM-1untbAtqkkks5aoZmqwA \
                 -f openapi -l WARN \
-                -t http://172.17.0.1:8090/swagger.json \
-                -z "config formhandler.fields.field\(0\).fieldId=user" \
-                -z "config formhandler.fields.field\(0\).value=test@pixi.owasp" \
-                -z "config formhandler.fields.field\(0\).enabled=true" \
-                -z "config formhandler.fields.field\(1\).fieldId=pass" \
-                -z "config formhandler.fields.field\(1\).value=testpass" \
-                -z "config formhandler.fields.field\(1\).enabled=true" || \
+                -t http://172.17.0.1:8090/swagger.json || \
+#                -z "config formhandler.fields.field\(0\).fieldId=user" \
+#                -z "config formhandler.fields.field\(0\).value=test@pixi.owasp" \
+#                -z "config formhandler.fields.field\(0\).enabled=true" \
+#                -z "config formhandler.fields.field\(1\).fieldId=pass" \
+#                -z "config formhandler.fields.field\(1\).value=testpass" \
+#                -z "config formhandler.fields.field\(1\).enabled=true" || \
                 # we know this is an insecure application:
                 exit 0
               )
@@ -187,7 +189,7 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVdBQnWmIHjOULcbaM-1untbAtqkkks5aoZmqwA \
                 -f openapi -l WARN \
-                -t http://172.17.0.3:8002/
+                -t http://172.17.0.3:8002/swagger.json
               )
                 #              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 
@@ -219,7 +221,7 @@ jobs:
           name: Show ModSecurity logs of Testcafe Tests
           command: |
               docker exec apachecrs cat /etc/httpd/logs/error.log | grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log && \
-              if [ $? -eq 0 ]; then echo "Application tests matched one or multiple ModSecurity rules!"; exit 1; else exit 0; fi;
+              if [ $? -eq 0 ]; then echo "Application tests matched one or multiple ModSecurity rules!" exit 1; else exit 0; fi;
               # If not empty -> Repair your application OR
               #              -> ModSecurity Tuning:
               # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
