@@ -60,10 +60,9 @@ jobs:
       - run:
            name: Start OWASP ModSecurity CRS Container in front of API for ZAP Scan
            #http://172.17.0.3:8002
-           #we set inbound and outbound anomaly score to 100, we want to see all errors
            command: |
              docker run -dt --name apachecrsapi -e PARANOIA=1 -e \
-             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8090 \
+             ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8090 \
              -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
  
       - run:
@@ -72,7 +71,7 @@ jobs:
            #we set inbound and outbound anomaly score to 100, we want to see all errors
            command: |
              docker run -dt --name apachecrszap -e PARANOIA=1 -e \
-             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
+             ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
              -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
 
       # ModSecurity Tuning:
@@ -170,9 +169,10 @@ jobs:
                 -z "config formhandler.fields.field\(0\).enabled=true" \
                 -z "config formhandler.fields.field\(1\).fieldId=pass" \
                 -z "config formhandler.fields.field\(1\).value=testpass" \
-                -z "config formhandler.fields.field\(1\).enabled=true" 
+                -z "config formhandler.fields.field\(1\).enabled=true" || \
+                # we know this is an insecure application:
+                exit 0
               )
-#              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
 
       # A zap-api.conf could be developed
       - run:
@@ -226,6 +226,7 @@ jobs:
           name: Show ModSecurity logs of ZAP API Scan
           command: |
               docker exec apachecrsapi cat /etc/httpd/logs/error.log 
+              #              if [ $? -eq 1 ]; then echo "Empty or not existing ModSecurity log from ZAP API scan"; exit 1; else exit 0; fi;
           # we always want to see this step:        
           when: always
 
