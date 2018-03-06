@@ -65,14 +65,14 @@ jobs:
              ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8090 \
              -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
 
-#      - run:
-#           name: Start OWASP ModSecurity CRS Container in front of application for ZAP Active Scan
-#           #http://172.17.0.4:8003
-#           #we set inbound and outbound anomaly score to 100, we want to see all errors
-#           command: |
-#             docker run -dt --name apachecrszap -e PARANOIA=1 -e \
-#             ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
-#             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
+      - run:
+           name: Start OWASP ModSecurity CRS Container in front of application for ZAP Active Scan
+           #http://172.17.0.4:8003
+           #we set inbound and outbound anomaly score to 100, we want to see all errors
+           command: |
+             docker run -dt --name apachecrszap -e PARANOIA=1 -e \
+             ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
+             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
 
       # ModSecurity Tuning:
       # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/
@@ -92,9 +92,9 @@ jobs:
             # CRS container for ZAP API Scan:
             docker cp tmp.conf apachecrsapi:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrsapi /usr/sbin/httpd -k graceful
-#            # CRS container for ZAP Scan:
-#            docker cp tmp.conf apachecrszap:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-#            docker exec apachecrszap /usr/sbin/httpd -k graceful
+            # CRS container for ZAP Scan:
+            docker cp tmp.conf apachecrszap:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+            docker exec apachecrszap /usr/sbin/httpd -k graceful
 #
 #            Examples:
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
@@ -113,40 +113,40 @@ jobs:
 #      # https://hub.docker.com/r/ictu/zap2docker-weekly/
 #      # This Active Scan has to be developed: a custom config_file and context file
 #      # This Active Scan takes about 3,5 minutes to run
-#      - run:
-#          name: ZAP Active Scan of application (without CRS)
-#          command: |
-#             (
-#             docker pull ictu/zap2docker-weekly && \
-#             docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
-#                -t http://172.17.0.1:8000/ -l WARN \
-#                --active_scan \
-#                --auth_loginurl http://172.17.0.1:8000/login \
-#                --auth_usernamefield user --auth_passwordfield pass \
-#                --auth_auto --auth_username pixiadmin --auth_password adminpixi || \
-#                # we know this is an insecure application:
-#                exit 0
-#                #if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
-#              )
-#
-#      # https://hub.docker.com/r/ictu/zap2docker-weekly/
-#      # This Active Scan has to be developed: a custom config_file and context file
-#      # This Active Scan takes about 3,5 minutes to run
-#      - run:
-#          name: ZAP active scan of application with CRS
-#          # Only fail on error code 1, which indicates at least one FAIL was found.
-#          # error codes 2 & 3 indicate WARN or other, and should not break the run
-#             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
-#          command: |
-#             (
-#             docker pull ictu/zap2docker-weekly && \
-#             docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
-#                -t http://172.17.0.4:8003/ -l WARN \
-#                --active_scan \
-#                --auth_loginurl http://172.17.0.4:8003/login \
-#                --auth_usernamefield user --auth_passwordfield pass \
-#                --auth_auto --auth_username pixiadmin --auth_password adminpixi
-#                )
+      - run:
+          name: ZAP Active Scan of application (without CRS)
+          command: |
+             (
+             docker pull ictu/zap2docker-weekly && \
+             docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
+                -t http://172.17.0.1:8000/ -l WARN -m 5 \
+                --active_scan \
+                --auth_loginurl http://172.17.0.1:8000/login \
+                --auth_usernamefield user --auth_passwordfield pass \
+                --auth_auto --auth_username pixiadmin --auth_password adminpixi || \
+                # we know this is an insecure application:
+                exit 0
+                #if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
+
+      # https://hub.docker.com/r/ictu/zap2docker-weekly/
+      # This Active Scan has to be developed: a custom config_file and context file
+      # This Active Scan takes about 3,5 minutes to run
+      - run:
+          name: ZAP active scan of application with CRS
+          # Only fail on error code 1, which indicates at least one FAIL was found.
+          # error codes 2 & 3 indicate WARN or other, and should not break the run
+             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
+          command: |
+             (
+             docker pull ictu/zap2docker-weekly && \
+             docker run -t ictu/zap2docker-weekly zap-baseline-custom.py \
+                -t http://172.17.0.4:8003/ -l WARN -m 5 \
+                --active_scan \
+                --auth_loginurl http://172.17.0.4:8003/login \
+                --auth_usernamefield user --auth_passwordfield pass \
+                --auth_auto --auth_username pixiadmin --auth_password adminpixi
+                )
 
        # Debugging possibilities:
 #      - run:
@@ -238,13 +238,13 @@ jobs:
           # we always want to see this step:        
           when: always
 
-#      - run:
-#          name: Show ModSecurity logs of ZAP Baseline Scan
-#          command: |
-#              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-baseline-scan.log || \
-#              if [ $? -eq 1 ]; then echo "Empty or not existing ModSecurity log from ZAP Baseline scan"; exit 1; else exit 0; fi;
-#          # we always want to see this step:        
-#          when: always
+      - run:
+          name: Show ModSecurity logs of ZAP Active Scan
+          command: |
+              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-active-scan.log || \
+              if [ $? -eq 1 ]; then echo "Empty or not existing ModSecurity log from ZAP Active scan"; exit 1; else exit 0; fi;
+          # we always want to see this step:        
+          when: always
 
       - store_test_results:
            path: /tmp/test-results
