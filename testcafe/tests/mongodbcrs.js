@@ -18,6 +18,8 @@ test('Login and Search', async t => {
         .typeText('#user', 'testuser@pixi.owasp')
         .typeText('#pass', 'testpw')
         //After login we search for Lunch
+        .typeText('#search_query', '[$exists]')
+        .pressKey('enter')
         .typeText('#search_query', 'true, $where: \'1 == 1\'')
         .pressKey('enter')
         .typeText('#search_query', ', $where: \'1 == 1\'')
