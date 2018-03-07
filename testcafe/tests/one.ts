@@ -12,4 +12,4 @@ test('My first test', async t => {
         .click('#tasks > div:nth-child(7) > a.task-link')
         .click('#outer > main > article > div.JTable.u-table-maxwidth.pipelines-table > div:nth-child(3) > a.JTable-cell.TableCell--pipelineLink > div');
 	}
-	)
+	);
