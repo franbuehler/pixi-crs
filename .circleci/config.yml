@@ -70,7 +70,7 @@ jobs:
 #           #http://172.17.0.4:8003
 #           #we set inbound and outbound anomaly score to 100, we want to see all errors
 #           command: |
-#             docker run -dt --name apachecrszap -e PARANOIA=4 -e \
+#             docker run -dt --name apachecrsactive -e PARANOIA=4 -e \
 #             ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
 #             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
 
@@ -93,8 +93,8 @@ jobs:
             docker cp tmp.conf apachecrsapi:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrsapi /usr/sbin/httpd -k graceful
             # CRS container for ZAP Scan:
-            docker cp tmp.conf apachecrszap:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-            docker exec apachecrszap /usr/sbin/httpd -k graceful
+#            docker cp tmp.conf apachecrsactive:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+#            docker exec apachecrsactive /usr/sbin/httpd -k graceful
 #
 #            Examples:
 #            printf "\nSecRuleUpdateTargetById 942420 \"!REQUEST_COOKIES:session\"\n" > tmp.conf
@@ -249,7 +249,7 @@ jobs:
 #      - run:
 #          name: Show ModSecurity logs of ZAP Active Scan
 #          command: |
-#              docker exec apachecrszap cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-active-scan.log || \
+#              docker exec apachecrsactive cat /etc/httpd/logs/error.log | grep -o -E " (at|against) .*\[file.*\[id \"[0-9]+.*\[msg \"[^\"]+" | tr -d \" | sed -e "s/ at the end of input at/ at/" -e "s/ required. /. /" -e "s/\[rev .*\[msg/[msg/" -e "s/\. / /" -e "s/(Total .*/(Total ...) .../" | tr -d \] | cut -d\  -f3,9,11- | sed -e "s/^\([^ ]*\) \([^ ]*\)/\2 \1/" | awk "{ printf \"%+6s %-35s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s %s\n\", \$1, \$2, \$3, \$4, \$5, \$6, \$7, \$8, \$9, \$10, \$11, \$12, \$13, \$14, \$15, \$16, \$17, \$18, \$19, \$20 }" | sed -e "s/\ *$//" | sort | uniq -c | sort -n | tee /tmp/test-results/ModSecurity-ZAP-active-scan.log || \
 #              if [ $? -eq 1 ]; then echo "Empty or not existing ModSecurity log from ZAP Active scan"; exit 1; else exit 0; fi;
 #          # we always want to see this step:        
 #          when: always
