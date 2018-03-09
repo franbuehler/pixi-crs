@@ -214,7 +214,7 @@ jobs:
              # starting application container using this volume
              docker pull testcafe/testcafe
              # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
-             docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --reporter xunit:/tmp/res.xml --skip-js-errors 'chromium:headless --no-sandbox' /tests/test.js /tests/mongodb.js
+             docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/test.js /tests/mongodb.js
              docker cp testcafe:/tmp/res.xml /tmp/test-results/
 
       - run:
