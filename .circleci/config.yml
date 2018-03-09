@@ -258,9 +258,7 @@ jobs:
       - run:
           name: Show ModSecurity logs of mean Testcafe Tests
           command: |
-              docker exec apachecrsmeantc cat /etc/httpd/logs/error.log ||
-#                # we know this is an insecure application:
-                exit 0
+              docker exec apachecrsmeantc cat /etc/httpd/logs/error.log
               #| grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
               #              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!"; exit 0; fi;
           # we always want to see this step:        
