@@ -51,19 +51,30 @@ jobs:
            command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
-             docker run -dt --name apachecrs -e PARANOIA=4 -e \
+             docker run -dt --name apachecrs -e PARANOIA=2 -e \
              ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
              #docker run -dt --name apachecrs franbuehler/modsecurity-crs
+             
+      - run:
+           name: Start OWASP ModSecurity CRS Container in front of application for mean application tests
+           #http://172.17.0.3:8002
+           #we set inbound and outbound anomaly score to 1, no tolerance
+           command: |
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull franbuehler/modsecurity-crs && \
+             docker run -dt --name apachecrs -e PARANOIA=2 -e \
+             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
+             -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
       - run:
            name: Start OWASP ModSecurity CRS Container in front of API for ZAP Scan
-           #http://172.17.0.3:8002
+           #http://172.17.0.4:8003
            command: |
              docker run -dt --name apachecrsapi -e PARANOIA=1 -e \
              ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8090 \
-             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
+             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
 
 #      - run:
 #           name: Start OWASP ModSecurity CRS Container in front of application for ZAP Active Scan
@@ -192,7 +203,7 @@ jobs:
              docker run -t owasp/zap2docker-weekly zap-api-scan.py \
                 -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVdBQnWmIHjOULcbaM-1untbAtqkkks5aoZmqwA \
                 -f openapi -l WARN \
-                -t http://172.17.0.3:8002/swagger.json \
+                -t http://172.17.0.4:8003/swagger.json \
                 -z "config formhandler.fields.field\(0\).fieldId=user" \
                 -z "config formhandler.fields.field\(0\).value=test@pixi.owasp" \
                 -z "config formhandler.fields.field\(0\).enabled=true" \
