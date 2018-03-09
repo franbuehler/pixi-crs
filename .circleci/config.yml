@@ -51,7 +51,7 @@ jobs:
            command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
-             docker run -dt --name apachecrs -e PARANOIA=2 -e \
+             docker run -dt --name apachecrstc -e PARANOIA=2 -e \
              ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
@@ -64,7 +64,7 @@ jobs:
            command: |
              docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
              docker pull franbuehler/modsecurity-crs && \
-             docker run -dt --name apachecrs -e PARANOIA=2 -e \
+             docker run -dt --name apachecrsmeantc -e PARANOIA=2 -e \
              ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
              -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
 
@@ -98,8 +98,11 @@ jobs:
             # This rule must not be excluded in production!
             printf "\nSecRuleRemoveById 920350\n" > tmp.conf
             # CRS container for application tests:
-            docker cp tmp.conf apachecrs:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-            docker exec apachecrs /usr/sbin/httpd -k graceful
+            docker cp tmp.conf apachecrstc:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+            docker exec apachecrstc /usr/sbin/httpd -k graceful
+            # CRS container for application tests:
+            docker cp tmp.conf apachecrsmeantc:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+            docker exec apachecrsmeantc /usr/sbin/httpd -k graceful
             # CRS container for ZAP API Scan:
             docker cp tmp.conf apachecrsapi:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrsapi /usr/sbin/httpd -k graceful
@@ -242,13 +245,24 @@ jobs:
           # Fail if ModSecurity log is not empty
           name: Show ModSecurity logs of Testcafe Tests
           command: |
-              docker exec apachecrs cat /etc/httpd/logs/error.log 
+              docker exec apachecrstc cat /etc/httpd/logs/error.log 
               #| grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
               #              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!"; exit 0; fi;
               # If not empty -> Repair your application OR
               #              -> ModSecurity Tuning:
               # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
               #              -> GitHub issue: https://github.com/SpiderLabs/owasp-modsecurity-crs
+          # we always want to see this step:        
+          when: always
+
+      - run:
+          name: Show ModSecurity logs of mean Testcafe Tests
+          command: |
+              docker exec apachecrsmeantc cat /etc/httpd/logs/error.log ||
+#                # we know this is an insecure application:
+                exit 0
+              #| grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
+              #              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!"; exit 0; fi;
           # we always want to see this step:        
           when: always
 
