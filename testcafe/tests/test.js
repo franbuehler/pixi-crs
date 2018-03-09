@@ -10,7 +10,7 @@ test('Register User', async t => {
         .typeText('#password', 'testpw')
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
         //After registration the search pixi field should be there
-        .expect('#search_query')
+        //.expect('#search_query')
 });
 
 test('Login and Search', async t => {
@@ -20,5 +20,5 @@ test('Login and Search', async t => {
         //After login we search for Lunch
         .typeText('#search_query', 'Lunch')
         .pressKey('enter')
-        .expect('body > div > div:nth-child(12) > div > div.card-deck')
+        //.expect('body > div > div:nth-child(12) > div > div.card-deck')
 });
