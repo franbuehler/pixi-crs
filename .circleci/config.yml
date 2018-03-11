@@ -229,7 +229,7 @@ jobs:
              docker pull testcafe/testcafe
              # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
              docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/test.js /tests/mongodb.js
-             docker cp testcafe:/tmp/res.xml /tmp/test-results/
+#             docker cp testcafe:/tmp/res.xml /tmp/test-results/
 #            docker run --volumes-from configs:rw --name testcafe -it testcafe/testcafe --reporter xunit:/tmp/res.xml --skip-js-errors 'chromium:headless --no-sandbox' /tests/test.js /tests/mongodb.js
 
       - run:
@@ -239,8 +239,8 @@ jobs:
              docker cp /home/circleci/project/testcafe/tests/mongodbcrs.js configs:/tests
              # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
              docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/testcrs.js /tests/mongodbcrs.js
-             docker cp testcafe:/tmp/res.xml /tmp/test-results/
-             #docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/testcrs.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
+#            docker cp testcafe:/tmp/res.xml /tmp/test-results/
+#            docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/testcrs.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
       - run:
           # Fail if ModSecurity log is not empty
