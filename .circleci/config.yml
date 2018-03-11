@@ -66,7 +66,7 @@ jobs:
              docker pull franbuehler/modsecurity-crs && \
              docker run -dt --name apachecrsmeantc -e PARANOIA=2 -e \
              ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
-             -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
+             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
 
 #      - run:
 #           name: Start OWASP ModSecurity CRS Container in front of API for ZAP Scan
