@@ -9,8 +9,6 @@ jobs:
       - image: circleci/node:9.5.0-stretch
 
     steps:
-      - checkout
-
       - run:
           name: Install dependencies
           command: |
@@ -25,6 +23,8 @@ jobs:
             sudo mv ~/docker-compose /usr/local/bin/docker-compose
 
       - setup_remote_docker
+
+      - checkout
 
       - run:
           name: Start DevSlop Pixi Container
