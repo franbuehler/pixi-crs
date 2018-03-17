@@ -57,16 +57,16 @@ jobs:
 
              #docker run -dt --name apachecrs franbuehler/modsecurity-crs
              
-      - run:
-           name: Start OWASP ModSecurity CRS Container in front of application for mean application tests
-           #http://172.17.0.3:8002
-           #we set inbound and outbound anomaly score to 1, no tolerance
-           command: |
-             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
-             docker pull franbuehler/modsecurity-crs && \
-             docker run -dt --name apachecrsmeantc -e PARANOIA=2 -e \
-             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
-             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
+#      - run:
+#           name: Start OWASP ModSecurity CRS Container in front of application for mean application tests
+#           #http://172.17.0.3:8002
+#           #we set inbound and outbound anomaly score to 1, no tolerance
+#           command: |
+#             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+#             docker pull franbuehler/modsecurity-crs && \
+#             docker run -dt --name apachecrsmeantc -e PARANOIA=2 -e \
+#             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
+#             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
 
 #      - run:
 #           name: Start OWASP ModSecurity CRS Container in front of API for ZAP Scan
@@ -101,8 +101,8 @@ jobs:
             docker cp tmp.conf apachecrstc:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
             docker exec apachecrstc /usr/sbin/httpd -k graceful
             # CRS container for application tests:
-            docker cp tmp.conf apachecrsmeantc:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
-            docker exec apachecrsmeantc /usr/sbin/httpd -k graceful
+#            docker cp tmp.conf apachecrsmeantc:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
+#            docker exec apachecrsmeantc /usr/sbin/httpd -k graceful
             # CRS container for ZAP API Scan:
 #            docker cp tmp.conf apachecrsapi:/etc/httpd/modsecurity.d/owasp-crs/rules/RESPONSE-999-EXCLUSION-RULES-AFTER-CRS.conf;
 #            docker exec apachecrsapi /usr/sbin/httpd -k graceful
@@ -256,14 +256,14 @@ jobs:
           # we always want to see this step:        
           when: always
 
-      - run:
-          name: Show ModSecurity logs of mean Testcafe Tests
-          command: |
-              docker exec apachecrsmeantc cat /etc/httpd/logs/error.log
-              #| grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
-              #              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!"; exit 0; fi;
-          # we always want to see this step:        
-          when: always
+#      - run:
+#          name: Show ModSecurity logs of mean Testcafe Tests
+#          command: |
+#              docker exec apachecrsmeantc cat /etc/httpd/logs/error.log
+#              #| grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
+#              #              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!"; exit 0; fi;
+#          # we always want to see this step:        
+#          when: always
 
 #      - run:
 #          name: Show ModSecurity logs of ZAP API Scan
