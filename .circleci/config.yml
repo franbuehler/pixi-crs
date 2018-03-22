@@ -27,7 +27,7 @@ jobs:
       - checkout
 
       - run:
-          name: Start DevSlop Pixi Container
+          name: Start App Container
           #http://172.17.0.1:8000
           command: |
              set -x
