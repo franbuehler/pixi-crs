@@ -1,0 +1,8 @@
+$LOAD_PATH.unshift '/opt/capi/lib'
+require 'capi_logger'
+
+puts "\n CAPI deployment \n\n"
+
+load 'deploy' if respond_to?(:namespace) # cap2 differentiator
+#Dir['/opt/capi/latest/*/*.rb'].each { |plugin| load(plugin) }
+Dir['/opt/capi/latest/*/*.rb'].each { |plugin| load(plugin) }

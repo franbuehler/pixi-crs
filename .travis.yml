@@ -1,0 +1,136 @@
+sudo: required
+services:
+  - docker
+language: python
+python:
+  - 2.7
+before_install:
+  - docker pull owasp/modsecurity-crs
+  - docker run -ti -e PARANOIA=5 -d --rm -p 80:80 -v /var/log/httpd:/var/log/httpd/ owasp/modsecurity-crs
+install: 
+  - pip install -r ./util/integration/requirements.txt
+  - pip install -r ./util/regression-tests/requirements.txt
+script:
+  - py.test -vs ./util/integration/format_tests.py
+  - py.test -vs util/regression-tests/CRS_Tests.py --rule=util/regression-tests/tests/test.yaml
+  - py.test -vs util/regression-tests/CRS_Tests.py --ruledir=util/regression-tests/tests/REQUEST-911-METHOD-ENFORCEMENT
+  - py.test -vs util/regression-tests/CRS_Tests.py --ruledir=util/regression-tests/tests/REQUEST-913-SCANNER-DETECTION
+  - py.test -vs util/regression-tests/CRS_Tests.py --ruledir=util/regression-tests/tests/REQUEST-921-PROTOCOL-ATTACK
+  - py.test -vs util/regression-tests/CRS_Tests.py --ruledir=util/regression-tests/tests/REQUEST-930-APPLICATION-ATTACK-LFI
+  - py.test -vs util/regression-tests/CRS_Tests.py --ruledir=util/regression-tests/tests/REQUEST-941-APPLICATION-ATTACK-XSS
+  - py.test -vs util/regression-tests/CRS_Tests.py --ruledir=util/regression-tests/tests/REQUEST-942-APPLICATION-ATTACK-SQLI
+  - py.test -vs util/regression-tests/CRS_Tests.py --ruledir=util/regression-tests/tests/REQUEST-943-APPLICATION-ATTACK-SESSION-FIXATION
+ safelist
+branches:
+  only:
+  - v3.0/dev
+  - v3.0/master
+  - v3.1/dev
+notifications:
+# irc: "chat.freenode.net#modsecurity"
+
+
+version: 2
+jobs:
+  build:
+    docker:
+      - image: debian:stretch
+    steps:
+      - checkout
+      - run: apt-get update && apt-get install -y curl sudo docker
+      - run:
+          name: Install Docker client
+          command: |
+             set -x
+             VER="17.03.0-ce"
+             curl -L -o /tmp/docker-$VER.tgz https://download.docker.com/linux/static/stable/x86_64/docker-$VER.tgz
+             tar -xz -C /tmp -f /tmp/docker-$VER.tgz
+             mv /tmp/docker/* /usr/bin
+      - run:
+          name: Install Docker Compose
+          command: |
+            curl -L https://github.com/docker/compose/releases/download/1.11.2/docker-compose-`uname -s`-`uname -m` > ~/docker-compose
+            chmod +x ~/docker-compose
+            sudo mv ~/docker-compose /usr/local/bin/docker-compose
+      - setup_remote_docker
+
+      - run:
+          name: Start DevSlop pixi crs container
+          command: |
+             set -x
+             docker-compose version
+             docker-compose up -d
+
+      - run:
+          name: Start OWASP ModSecurity CRS Container in front of application
+          command: |
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull franbuehler/modsecurity-crs && \
+             docker run -dt --name apache-crs franbuehler/modsecurity-crs
+
+      - run:
+          name: ZAP baseline test of application
+          # Only fail on error code 1, which indicates at least one FAIL was found.
+          # error codes 2 & 3 indicate WARN or other, and should not break the run
+             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -t http://172.17.0.1:8000/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+             # docker pull ictu/zap2docker-weekly && \
+             # docker run -t ictu/zap2docker-weekly baseline.py \
+             #    -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVcLZSbEfwBTEEYEgpmtKc6x3CDtMks5aY0pXwA --active_scan \
+             #    -t http://172.17.0.1:8000/ || \
+             #  if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
+
+      - run:
+          name: ZAP baseline test of application with CRS
+          # Only fail on error code 1, which indicates at least one FAIL was found.
+          # error codes 2 & 3 indicate WARN or other, and should not break the run
+             #               -u https://raw.githubusercontent.com/${DOCKER_USER}/${CIRCLE_PROJECT_REPONAME}/master/zap-baseline.conf \
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-baseline.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-baseline.conf?token=AQ6RVWcCWhass2qYuq5piNkgqnPrHe44ks5abPQLwA \
+                -t http://172.17.0.2:8001/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
+
+      - run:
+          name: ZAP API scan of application
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVXgEegiYlETsknsFoLtuQ0gPH0tGks5acBG7wA \
+                -f openapi \
+                -t http://172.17.0.1:8000/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
+
+      - run:
+          name: ZAP API scan of application with CRS
+          command: |
+             (
+             docker login -u ${DOCKER_USER} -p ${DOCKER_PASS};
+             docker pull owasp/zap2docker-weekly && \
+             docker run -t owasp/zap2docker-weekly zap-api-scan.py \
+                -u https://raw.githubusercontent.com/franbuehler/pixi-crs/master/zap-api.conf?token=AQ6RVXgEegiYlETsknsFoLtuQ0gPH0tGks5acBG7wA \
+                -f openapi \
+                -t http://172.17.0.2:8001/ || \
+              if [ $? -ne 1 ]; then exit 0; else exit 1; fi;
+              )
+
+      - run:
+          name: Show ModSecurity logs
+          command: |
+             docker exec apache-crs cat /var/log/modsec_audit.log 
+             docker exec apache-crs curl http://172.17.0.1:8000
