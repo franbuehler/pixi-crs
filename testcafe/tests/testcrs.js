@@ -22,4 +22,4 @@ test('Login and Search', async t => {
         .typeText('#search_query', 'Lunch')
         .pressKey('enter')
         //.expect('body > div > div:nth-child(12) > div > div.card-deck')
-}); 
+});
