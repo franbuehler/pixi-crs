@@ -35,7 +35,7 @@ jobs:
              docker-compose up -d
 
       # OWASP ModSecurity Core Rule Set Container (Apache Reverse Proxy)
-      # franbuehler/modsecurity-crs
+      # franbuehler/modsecurity-crs-rp
       # Environment variables:
       # PARANOIA:   paranoia_level
       # ANOMALYIN:  inbound_anomaly_score_threshold
@@ -53,9 +53,9 @@ jobs:
              docker pull franbuehler/modsecurity-crs-rp && \
              docker run -dt --name apachecrstc -e PARANOIA=2 -e \
              ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
-             -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs
+             -e PORT=8001 --expose 8001 franbuehler/modsecurity-crs-rp
 
-             #docker run -dt --name apachecrs franbuehler/modsecurity-crs
+             #docker run -dt --name apachecrs franbuehler/modsecurity-crs-rp
              
 #      - run:
 #           name: Start OWASP ModSecurity CRS Container in front of application for mean application tests
@@ -66,7 +66,7 @@ jobs:
 #             docker pull franbuehler/modsecurity-crs-rp && \
 #             docker run -dt --name apachecrsmeantc -e PARANOIA=2 -e \
 #             ANOMALYIN=100 -e ANOMALYOUT=100 -e BACKEND=http://172.17.0.1:8000 \
-#             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs
+#             -e PORT=8002 --expose 8002 franbuehler/modsecurity-crs-rp
 
 #      - run:
 #           name: Start OWASP ModSecurity CRS Container in front of API for ZAP Scan
@@ -74,7 +74,7 @@ jobs:
 #           command: |
 #             docker run -dt --name apachecrsapi -e PARANOIA=1 -e \
 #             ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8090 \
-#             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
+#             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs-rp
 
 #      - run:
 #           name: Start OWASP ModSecurity CRS Container in front of application for ZAP Active Scan
@@ -83,7 +83,7 @@ jobs:
 #           command: |
 #             docker run -dt --name apachecrsactive -e PARANOIA=4 -e \
 #             ANOMALYIN=1 -e ANOMALYOUT=1 -e BACKEND=http://172.17.0.1:8000 \
-#             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs
+#             -e PORT=8003 --expose 8003 franbuehler/modsecurity-crs-rp
 
       # ModSecurity Tuning:
       # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/
