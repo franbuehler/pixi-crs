@@ -106,9 +106,9 @@ jobs:
           name: Application Tests with CRS with Testcafe
           command: |
              docker cp /home/circleci/project/testcafe/tests/testcrs.js configs:/tests
-             #docker cp /home/circleci/project/testcafe/tests/mongodbcrs.js configs:/tests
+             docker cp /home/circleci/project/testcafe/tests/mongodbcrs.js configs:/tests
              # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
-             docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/testcrs.js #/tests/mongodbcrs.js
+             docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/testcrs.js /tests/mongodbcrs.js
 #            docker cp testcafe:/tmp/res.xml /tmp/test-results/
 #            docker run -v /home/circleci/project/testcafe/tests:/tests -it testcafe/testcafe chrome /tests/testcrs.js --skip-js-errors --reporter xunit:/tmp/test-results/res.xml
 
@@ -120,8 +120,6 @@ jobs:
               | grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
               if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!" && exit 0; else exit 1; fi;
 
-              #| grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
-              #              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!"; exit 0; fi;
               # If not empty -> Repair your application OR
               #              -> ModSecurity Tuning:
               # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
