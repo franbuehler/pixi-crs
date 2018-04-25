@@ -116,7 +116,10 @@ jobs:
           # Fail if ModSecurity log is not empty
           name: Show ModSecurity logs of Testcafe Tests
           command: |
-              docker exec apachecrstc cat /etc/httpd/logs/error.log 
+              docker exec apachecrstc cat /etc/httpd/logs/error.log \
+              | grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
+              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!" && exit 0; else exit 1; fi;
+
               #| grep ModSecurity | grep msg | tee /tmp/test-results/ModSecurity-Testcafe.log || \
               #              if [ $? -eq 1 ]; then echo "No ModSecurity rule matched, that is ok!"; exit 0; fi;
               # If not empty -> Repair your application OR
