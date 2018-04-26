@@ -22,6 +22,10 @@ test('Login User', async t => {
 
 test('Search String', async t => {
     await t
+	.click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
+        .typeText('input#user', 'testuser@pixi.owasp')
+        .typeText('input#pass', 'testpw')
+	.click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
         //After login we search for Lunch
         .typeText('#search_query', 'Lunch')
         .pressKey('enter')
