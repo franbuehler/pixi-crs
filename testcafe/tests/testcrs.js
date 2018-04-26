@@ -12,7 +12,7 @@ test('Register User WITH CRS', async t => {
         //.expect('#search_query')
 });
 
-test('Login User', async t => {
+test('Login User WITH CRS', async t => {
     await t
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
         .typeText('input#user', 'testuser@pixi.owasp')
@@ -20,7 +20,7 @@ test('Login User', async t => {
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
 });
 
-test('Search String', async t => {
+test('Search String WITH CRS', async t => {
     await t
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
         .typeText('input#user', 'testuser@pixi.owasp')
@@ -32,7 +32,7 @@ test('Search String', async t => {
         //.expect('body > div > div:nth-child(12) > div > div.card-deck')
 });
 
-test('Logout User', async t => {
+test('Logout User WITH CRS', async t => {
     await t
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
         .typeText('input#user', 'testuser@pixi.owasp')
