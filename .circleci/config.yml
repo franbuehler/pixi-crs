@@ -124,7 +124,7 @@ jobs:
               # See https://www.netnea.com/cms/apache-tutorial-8_handling-false-positives-modsecurity-core-rule-set/ OR
               #              -> GitHub issue: https://github.com/SpiderLabs/owasp-modsecurity-crs
               
-          # we always want to see this step:        
+          # we always want to see this step:
           when: always
 
       - store_test_results:
