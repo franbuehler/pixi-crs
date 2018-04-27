@@ -1,4 +1,4 @@
-import { Selector } from 'testcafe'; 
+import { Selector } from 'testcafe';
 
 fixture`Getting Started`
     .page `http://172.17.0.2:8001/register`;
