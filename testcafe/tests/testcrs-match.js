@@ -18,11 +18,11 @@ test('Login User WITH CRS', async t => {
         .typeText('input#user', 'testuser@pixi.owasp')
         .typeText('input#pass', 'testpw')
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
+	.navigateTo('http://172.17.0.2:8001/register?$select=userid')
 });
 
 test('Search String WITH CRS', async t => {
     await t
-	.navigateTo('http://172.17.0.2:8001/register?$select=userid')
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
         .typeText('input#user', 'testuser@pixi.owasp')
         .typeText('input#pass', 'testpw')
