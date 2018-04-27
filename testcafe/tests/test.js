@@ -40,3 +40,8 @@ test('Logout User', async t => {
 	.click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
 	.click('body > div > div:nth-child(1) > div.col-md-7 > ul > li:nth-child(4) > a')
 });
+
+test('Register User', async t => {
+    await t
+        .typeText('input#email', 'testuser@pixi.owasp')
+});
