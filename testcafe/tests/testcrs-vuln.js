@@ -77,12 +77,3 @@ test('Call search[$ne]=1 WITH CRS', async t => {
     await t
         .navigateTo('http://172.17.0.2:8001/ADMIN/loves?search[$ne]=1')
 });
-
-test('Logout User WITH CRS', async t => {
-    await t
-        .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
-        .typeText('input#user', 'testuser@pixi.owasp')
-        .typeText('input#pass', 'testpw')
-        .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
-        .click('body > div > div:nth-child(1) > div.col-md-7 > ul > li:nth-child(4) > a')
-});
