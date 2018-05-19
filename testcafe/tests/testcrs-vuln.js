@@ -44,6 +44,16 @@ test('Search Angular XSS String WITH CRS', async t => {
         //.expect('body > div > div:nth-child(12) > div > div.card-deck')
 });
 
+test('Call service.conf WITH CRS', async t => {
+    await t
+        .navigateTo('http://172.17.0.2:8001/service.conf')
+});
+
+test('Call secret.conf WITH CRS', async t => {
+    await t
+        .navigateTo('http://172.17.0.2:8001/secret.conf')
+});
+
 test('Logout User WITH CRS', async t => {
     await t
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
