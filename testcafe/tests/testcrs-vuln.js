@@ -20,7 +20,7 @@ test('Login User WITH CRS', async t => {
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
 });
 
-test('Search String "<script>alert('hi')</script>" WITH CRS', async t => {
+test('Search Reflected XSS String WITH CRS', async t => {
     await t
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
         .typeText('input#user', 'testuser@pixi.owasp')
