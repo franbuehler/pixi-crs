@@ -44,6 +44,18 @@ test('Search Angular XSS String WITH CRS', async t => {
         //.expect('body > div > div:nth-child(12) > div > div.card-deck')
 });
 
+test('Login as another User WITH CRS', async t => {
+    await t
+        .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
+        .typeText('input#user', 'email@address.com')
+        .typeText('input#pass', '[$ne]=')
+        .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
+        //After login we search for `{{constructor.constructor("alert(1)")()}}`
+        .typeText('#search_query', '`{{constructor.constructor("alert(1)")()}}`')
+        .pressKey('enter')
+        //.expect('body > div > div:nth-child(12) > div > div.card-deck')
+});
+
 test('Call service.conf WITH CRS', async t => {
     await t
         .navigateTo('http://172.17.0.2:8001/service.conf')
