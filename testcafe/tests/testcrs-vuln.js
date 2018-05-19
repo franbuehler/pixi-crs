@@ -68,23 +68,23 @@ test('Upload exe file WITH CRS', async t => {
         .typeText('input#pass', 'testpw')
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
         .setFilesToUpload('#filename', 'md5sum.exe')
-        .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
+        .click('body > div > div:nth-child(5) > div.col-md-4 > div > div.card-block > form > button')
 });
 
 // Test Nr. 11. Inject on the admin page to find all users
-test('Call search[$ne]=1 WITH CRS', async t => {
+test('Call search [$ne]=1 WITH CRS', async t => {
     await t
         .navigateTo('http://172.17.0.2:8001/ADMIN/search?search[$ne]=1')
 });
 
-// Test Nr. 12. Find the session secret for web app session cookies
-test('Call search[$ne]=1 WITH CRS', async t => {
+// Test Nr. 12. Inject on the admin page to find all likes
+test('Call likes [$ne]=1 WITH CRS', async t => {
     await t
         .navigateTo('http://172.17.0.2:8001/ADMIN/likes?search[$ne]=1')
 });
 
-// Test Nr. 13. Find the session secret for web app session cookies
-test('Call search[$ne]=1 WITH CRS', async t => {
+// Test Nr. 13. Inject on the admin page to find all loves
+test('Call loves [$ne]=1 WITH CRS', async t => {
     await t
         .navigateTo('http://172.17.0.2:8001/ADMIN/loves?search[$ne]=1')
 });
