@@ -105,7 +105,7 @@ jobs:
       - run:
           name: Application Tests with CRS with Testcafe
           command: |
-             docker cp /home/circleci/project/testcafe/tests/testcrs-match.js configs:/tests
+             docker cp /home/circleci/project/testcafe/tests/testcrs-vuln.js configs:/tests
              # docker cp /home/circleci/project/testcafe/tests/mongodbcrs.js configs:/tests
              # skip-js-errors because of: Uncaught Error: Bootstrap tooltips require Tether
              docker run --volumes-from configs:rw --name testcafecrs -it testcafe/testcafe --skip-js-errors 'chromium:headless --no-sandbox' /tests/testcrs-vuln.js #/tests/mongodbcrs.js
