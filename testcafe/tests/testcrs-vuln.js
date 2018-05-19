@@ -63,10 +63,11 @@ test('Login as another User WITH CRS', async t => {
 // Test Nr. 10. Upload something that is not a photo
 test('Upload exe file WITH CRS', async t => {
     await t
+        .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
         .typeText('input#user', 'testuser@pixi.owasp')
         .typeText('input#pass', 'testpw')
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
-        .setFilesToUpload('#filename', md5sum.exe )
+        .setFilesToUpload('#filename', 'md5sum.exe')
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-4 > a:nth-child(3) > button')
 });
 
