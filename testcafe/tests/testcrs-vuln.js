@@ -38,8 +38,8 @@ test('Search Angular XSS String WITH CRS', async t => {
         .typeText('input#user', 'testuser@pixi.owasp')
         .typeText('input#pass', 'testpw')
         .click('body > div.jumbotron.jumbotron-fluid > div > div:nth-child(5) > div.col-8 > form > button')
-        //After login we search for `{{constructor.constructor('alert(1)')()}}`
-        .typeText('#search_query', '`{{constructor.constructor('alert(1)')()}}`')
+        //After login we search for `{{constructor.constructor("alert(1)")()}}`
+        .typeText('#search_query', '`{{constructor.constructor("alert(1)")()}}`')
         .pressKey('enter')
         //.expect('body > div > div:nth-child(12) > div > div.card-deck')
 });
